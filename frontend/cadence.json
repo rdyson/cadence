@@ -5,14 +5,14 @@
   "interval": "week",
   "users": [
     {
-      "id": "rob",
-      "name": "Rob",
-      "email": "rob.dyson@codingscape.com"
-    },
-    {
       "id": "adam",
       "name": "Adam",
       "email": "adam.fenton@codingscape.com"
+    },
+    {
+      "id": "rob",
+      "name": "Rob",
+      "email": "robert.dyson@codingscape.com"
     }
   ],
   "periods": [

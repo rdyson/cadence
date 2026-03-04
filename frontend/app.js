@@ -166,10 +166,10 @@ function esc(s) {
 // ── Header ────────────────────────────────────────────────────────────────────
 
 function renderHeader() {
-    document.title = cadence.name;
-    document.getElementById("project-name").textContent = cadence.name;
+    document.title = `Cadence — ${cadence.name}`;
+    document.getElementById("project-name").textContent = `Cadence — ${cadence.name}`;
     document.getElementById("project-desc").textContent = cadence.description || "";
-    document.getElementById("login-title").textContent = cadence.name;
+    document.getElementById("login-title").textContent = "Cadence";
     document.getElementById("signed-in-as").textContent = currentUser.name;
 }
 
@@ -331,7 +331,7 @@ function renderPeriods() {
                         <span class="period-label">${esc(period.label)}</span>
                         ${period.description ? `<div class="period-desc">${esc(period.description)}</div>` : ""}
                     </div>
-                    ${period.total_hours > 0 ? `<span class="period-hours">${period.total_hours}h</span>` : ""}
+                    ${period.total_hours > 0 ? `<span class="period-hours" data-period-hours="${period.number}">${period.total_hours}h</span>` : ""}
                 </div>
                 <div class="period-user-summary">${userSummary}</div>
             </div>
@@ -415,15 +415,29 @@ function updatePeriodSummaries() {
         const periodNum = parseInt(periodEl.dataset.period);
         const period = cadence.periods.find(p => p.number === periodNum);
         if (!period) return;
+
+        // Update user badges
         const summaryEl = periodEl.querySelector(".period-user-summary");
-        if (!summaryEl) return;
-        summaryEl.innerHTML = cadence.users.map(user => {
-            const userChecks = state[user.email] || {};
-            const done = period.items.filter(i => userChecks[i.title]).length;
-            const total = period.items.length;
-            const allDone = done === total && total > 0;
-            return `<span class="period-user-badge${allDone ? " done" : ""}">${esc(user.name)}: ${done}/${total}</span>`;
-        }).join("");
+        if (summaryEl) {
+            summaryEl.innerHTML = cadence.users.map(user => {
+                const userChecks = state[user.email] || {};
+                const done = period.items.filter(i => userChecks[i.title]).length;
+                const total = period.items.length;
+                const allDone = done === total && total > 0;
+                return `<span class="period-user-badge${allDone ? " done" : ""}">${esc(user.name)}: ${done}/${total}</span>`;
+            }).join("");
+        }
+
+        // Update hours remaining (based on current user)
+        const hoursEl = periodEl.querySelector("[data-period-hours]");
+        if (hoursEl && period.total_hours > 0) {
+            const myChecks = state[currentUser.email] || {};
+            const doneHours = period.items.filter(i => myChecks[i.title]).reduce((sum, i) => sum + (i.hours || 0), 0);
+            const remaining = Math.max(0, period.total_hours - doneHours);
+            hoursEl.textContent = remaining > 0 && remaining < period.total_hours
+                ? `${period.total_hours}h (${remaining.toFixed(1)} left)`
+                : `${period.total_hours}h`;
+        }
     });
 }
 
@@ -521,8 +535,8 @@ async function init() {
         return;
     }
 
-    document.getElementById("login-title").textContent = cadence.name;
-    document.getElementById("login-desc").textContent = cadence.description || "Keep the pace.";
+    document.getElementById("login-title").textContent = "Cadence";
+    document.getElementById("login-desc").textContent = cadence.name;
 
     if (loadStoredToken()) {
         currentUser = getUserFromToken();
