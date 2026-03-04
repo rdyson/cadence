@@ -15,6 +15,10 @@ if [ ! -f "$CONFIG" ]; then
     exit 1
 fi
 
+# Preflight checks
+cd "$ROOT"
+source "$SCRIPT_DIR/preflight.sh"
+
 # Parse config with Python
 _CADENCE_ENV=$(mktemp)
 python3 - <<'PYEOF' > "$_CADENCE_ENV"

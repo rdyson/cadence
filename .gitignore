@@ -4,3 +4,5 @@ cadence.yaml
 .venv
 backend/lambda.zip
 frontend/cadence.json
+.dev-state.json
+.DS_Store

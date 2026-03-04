@@ -581,6 +581,14 @@ async function init() {
     document.getElementById("login-title").textContent = "Cadence";
     document.getElementById("login-desc").textContent = cadence.name;
 
+    // Dev mode: skip auth entirely, use first user
+    if (cadence._dev_mode) {
+        currentUser = cadence.users[0];
+        accessToken = "dev-token";
+        await launchApp();
+        return;
+    }
+
     if (loadStoredToken()) {
         currentUser = getUserFromToken();
         if (currentUser) { await launchApp(); return; }

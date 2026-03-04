@@ -24,6 +24,51 @@ Built for accountability. No paid subscriptions. Runs on AWS free tier.
 - **Persistent state** — stored in DynamoDB, survives page refreshes
 - **Auth** — AWS Cognito email/password login
 - **Static frontend** — no server, just S3 + CloudFront
+- **Themes** — clean default theme or dark sci-fi LCARS theme
+- **Local dev mode** — iterate on the UI without deploying
+- **Validate script** — verify all AWS resources are healthy
+
+## Screenshots
+
+![Desktop - Default](docs/desktop-default.png)
+![Mobile - Default](docs/mobile-default.png)
+![Desktop - LCARS](docs/desktop-lcars.png)
+![Mobile - LCARS](docs/mobile-lcars.png)
+
+## Architecture
+
+```
+┌─────────────────────────────────────────────────────────┐
+│  Browser                                                │
+│  index.html + app.js + style.css + cadence.json         │
+└──────────────────────┬───────────────┬──────────────────┘
+                       │               │
+                 static assets     API calls
+                       │          (JWT in header)
+                       ▼               ▼
+               ┌──────────────┐  ┌──────────────┐
+               │  CloudFront  │  │ API Gateway  │
+               │  (HTTPS CDN) │  │ (HTTP API)   │
+               └──────┬───────┘  └──────┬───────┘
+                      │                 │
+                      │          ┌──────┴───────┐
+                      │          │   Cognito    │
+                      │          │ JWT Authorizer│
+                      │          └──────┬───────┘
+                      ▼                 ▼
+               ┌──────────────┐  ┌──────────────┐
+               │   S3 Bucket  │  │    Lambda    │
+               │  (frontend)  │  │  (API logic) │
+               └──────────────┘  └──────┬───────┘
+                                        │
+                                        ▼
+                                 ┌──────────────┐
+                                 │   DynamoDB   │
+                                 │ (user state) │
+                                 └──────────────┘
+```
+
+**Data flow:** The frontend is a static SPA served from S3 via CloudFront. On login, Cognito issues a JWT. Every API call includes the JWT in the `Authorization` header. API Gateway validates it against the Cognito User Pool before the request reaches Lambda. Lambda reads/writes checkbox state in DynamoDB, keyed by the user's email extracted from the JWT claims.
 
 ---
 
@@ -80,52 +125,24 @@ Open `cadence.yaml` and set:
 
 Open `items.csv` (or replace it with your own). The build script reads the column names from `cadence.yaml → columns`, so your CSV just needs a consistent header row.
 
-### 3. Set up AWS infrastructure
+### 3. Deploy
 
 ```bash
-bash scripts/setup-aws.sh
+bash scripts/setup.sh
 ```
 
-Press 'q' to continue at the end of each step when the script pauses.
+This runs the full setup in one go (~10 minutes):
 
-This creates all the AWS resources needed (~2 minutes):
+1. **Preflight checks** — validates AWS CLI, credentials, Python, dependencies
+2. **AWS infrastructure** — DynamoDB, Lambda, API Gateway, Cognito, S3
+3. **CloudFront** — HTTPS CDN in front of S3
+4. **Build & deploy** — builds `cadence.json` from config + CSV, uploads everything
 
-- **DynamoDB** table for checkbox state
-- **Lambda** function (the API)
-- **API Gateway** (HTTP API with Cognito authorizer)
-- **Cognito User Pool** with one user per person in `cadence.yaml`
-- **S3 bucket** for the frontend
+All created resource IDs are written back to `cadence.yaml` automatically. You can also run the steps individually — see [Scripts](#scripts).
 
-When it finishes, it writes the created resource IDs (Cognito pool ID, client ID, API URL, S3 bucket name) back into your `cadence.yaml` automatically. You'll see them appear in the `aws:` section.
+> **Why CloudFront?** S3 website URLs are HTTP only. Cognito requires HTTPS. CloudFront provides HTTPS and is free tier eligible.
 
-### 4. Set up CloudFront
-
-```bash
-bash scripts/setup-cloudfront.sh
-```
-
-This creates a CloudFront distribution in front of your S3 bucket and writes the URL back to `cadence.yaml`. CloudFront provides HTTPS — required for Cognito auth to work correctly.
-
-> **Why not just use S3 directly?** S3 static website URLs are HTTP only. Cognito requires HTTPS for authentication flows. CloudFront solves this and is free tier eligible.
-
-Once the distribution is deployed (~5 minutes), the script prints your dashboard URL.
-
-### 5. Build and deploy
-
-```bash
-python scripts/deploy.py
-```
-
-This:
-
-1. Reads `cadence.yaml` + `items.csv` → builds `frontend/cadence.json`
-2. Uploads all frontend files to your S3 bucket
-3. Updates the Lambda function code
-4. Invalidates the CloudFront cache
-
-Your dashboard is now live at the CloudFront URL printed in step 4.
-
-### 6. Sign in
+### 4. Sign in
 
 Each user in `cadence.yaml` gets a Cognito account with a **randomly generated temporary password**, printed in the script output:
 
@@ -219,15 +236,18 @@ DynamoDB
 
 ## Scripts
 
-| Script                        | When to run              | Description                          |
-| ----------------------------- | ------------------------ | ------------------------------------ |
-| `scripts/setup-aws.sh`        | Once (first time)        | Creates all AWS infrastructure       |
-| `scripts/setup-cloudfront.sh` | Once (first time)        | Creates CloudFront distribution      |
-| `scripts/build.py`            | After editing CSV/config | Builds `frontend/cadence.json`       |
-| `scripts/deploy.py`           | After any changes        | Build + upload to S3 + update Lambda |
-| `scripts/teardown-aws.sh`     | To remove everything     | Deletes all AWS resources            |
+| Script                        | When to run              | Description                                      |
+| ----------------------------- | ------------------------ | ------------------------------------------------ |
+| `scripts/setup.sh`            | Once (first time)        | Full setup: infrastructure + CloudFront + deploy |
+| `scripts/setup-aws.sh`        | Once (first time)        | Creates AWS infrastructure only                  |
+| `scripts/setup-cloudfront.sh` | Once (first time)        | Creates CloudFront distribution only             |
+| `scripts/deploy.py`           | After any changes        | Build + upload to S3 + update Lambda             |
+| `scripts/build.py`            | After editing CSV/config | Builds `frontend/cadence.json`                   |
+| `scripts/validate.py`         | Anytime                  | Checks all AWS resources are healthy             |
+| `scripts/dev.py`              | During development       | Local dev server with mock API (no AWS needed)   |
+| `scripts/teardown-aws.sh`     | To remove everything     | Deletes all AWS resources                        |
 
-`setup-aws.sh` and `setup-cloudfront.sh` are safe to re-run — they check for existing resources and skip them.
+`setup.sh` is the recommended way to get started. The individual setup scripts are safe to re-run — they check for existing resources and skip them.
 
 ---
 
@@ -237,6 +257,47 @@ DynamoDB
 2. Run `bash scripts/setup-aws.sh` (skips existing resources, creates the new Cognito user)
 3. Run `python scripts/deploy.py` (rebuilds `cadence.json` with the new user column)
 4. Share the dashboard URL + the temporary password from the setup output
+
+---
+
+## Local development
+
+Iterate on the frontend without deploying to AWS:
+
+```bash
+python scripts/dev.py
+```
+
+This starts a local server at `http://localhost:8000` that:
+
+- Serves the frontend from `frontend/`
+- Mocks the API with a local JSON file (`.dev-state.json`)
+- Auto-builds `cadence.json` from your config
+- Skips auth — auto-logs in as the first user
+- Checkbox state persists across refreshes (stored locally)
+
+Options:
+
+```bash
+python scripts/dev.py --port 3000       # custom port
+python scripts/dev.py --skip-build      # don't rebuild cadence.json
+```
+
+No AWS credentials, no internet connection required. Edit HTML/CSS/JS, refresh the browser.
+
+---
+
+## Validate
+
+Check that all AWS resources exist and are properly configured:
+
+```bash
+python scripts/validate.py
+```
+
+This checks: config file, DynamoDB table, Cognito pool + users, Lambda function, API Gateway (including a live 401 test), S3 bucket + files, CloudFront reachability, and IAM role + policies.
+
+Useful for debugging after changes, verifying a fresh setup, or diagnosing "it was working yesterday" issues.
 
 ---
 

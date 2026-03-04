@@ -13,6 +13,10 @@ if [ ! -f "$ROOT/cadence.yaml" ]; then
     exit 1
 fi
 
+# Preflight checks
+cd "$ROOT"
+source "$SCRIPT_DIR/preflight.sh"
+
 # Parse config
 _CADENCE_ENV=$(mktemp)
 python3 - <<'PYEOF' > "$_CADENCE_ENV"

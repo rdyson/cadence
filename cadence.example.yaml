@@ -11,6 +11,9 @@ completion_date: "2026-04-26"   # ISO 8601 date
 # Options: day | week | month | year | sprint | quarter
 interval: week
 
+# Theme: "default" (clean light theme) or "lcars" (dark sci-fi)
+# theme: lcars
+
 # Path to your CSV file (relative to this config file)
 csv: items.csv
 
