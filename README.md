@@ -1,4 +1,4 @@
-# Cadence 📐
+# Cadence 🪿
 
 **A few hours a week, compounding.**
 
@@ -83,6 +83,8 @@ Open `items.csv` (or replace it with your own). The build script reads the colum
 ```bash
 bash scripts/setup-aws.sh
 ```
+
+Press 'q' to continue at the end of each step when the script pauses.
 
 This creates all the AWS resources needed (~2 minutes):
 - **DynamoDB** table for checkbox state
