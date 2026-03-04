@@ -1,4 +1,4 @@
-# Cadence 📐
+# Cadence 🪿
 
 **A few hours a week, compounding.**
 
