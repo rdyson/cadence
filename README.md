@@ -245,6 +245,98 @@ The S3 bucket is private by design. Traffic must go through CloudFront. Check th
 
 ---
 
+## Teardown
+
+To remove all AWS resources created by the setup scripts, run the following commands. Replace the values with your own from `cadence.yaml` (under `aws:`).
+
+```bash
+# Set these from your cadence.yaml
+REGION="eu-west-2"
+BUCKET="cadence-aws-solutions-architect-681583878215"  # aws.s3_bucket
+POOL_ID="eu-west-2_CXfUleGqD"                         # aws.cognito_user_pool_id
+API_NAME="cadence-api"
+LAMBDA_NAME="cadence-api"
+LAMBDA_ROLE="cadence-lambda-role"
+TABLE_NAME="cadence-study"                             # aws.dynamodb_table
+```
+
+**1. [CloudFront distribution](https://console.aws.amazon.com/cloudfront/home)** (created by `setup-cloudfront.sh`)
+
+```bash
+# Find the distribution ID
+DIST_ID=$(aws cloudfront list-distributions \
+    --query "DistributionList.Items[?Comment=='Cadence dashboard - ${BUCKET}'].Id" \
+    --output text)
+
+# Disable it first (required before deletion)
+ETAG=$(aws cloudfront get-distribution-config --id "$DIST_ID" --query 'ETag' --output text)
+aws cloudfront get-distribution-config --id "$DIST_ID" --query 'DistributionConfig' --output json \
+    | python3 -c "import json,sys; c=json.load(sys.stdin); c['Enabled']=False; print(json.dumps(c))" \
+    | aws cloudfront update-distribution --id "$DIST_ID" --if-match "$ETAG" --distribution-config file:///dev/stdin > /dev/null
+
+# Wait for it to disable (~5 minutes)
+echo "Waiting for distribution to disable..."
+aws cloudfront wait distribution-deployed --id "$DIST_ID"
+
+# Delete it
+ETAG=$(aws cloudfront get-distribution-config --id "$DIST_ID" --query 'ETag' --output text)
+aws cloudfront delete-distribution --id "$DIST_ID" --if-match "$ETAG"
+
+# Delete the Origin Access Control
+OAC_ID=$(aws cloudfront list-origin-access-controls \
+    --query "OriginAccessControlList.Items[?Name=='cadence-oac'].Id" --output text)
+ETAG=$(aws cloudfront get-origin-access-control --id "$OAC_ID" --query 'ETag' --output text)
+aws cloudfront delete-origin-access-control --id "$OAC_ID" --if-match "$ETAG"
+```
+
+**2. [S3 bucket](https://console.aws.amazon.com/s3/buckets)**
+
+```bash
+aws s3 rm "s3://${BUCKET}" --recursive
+aws s3api delete-bucket --bucket "$BUCKET" --region "$REGION"
+```
+
+**3. [Cognito](https://console.aws.amazon.com/cognito/v2/idp/user-pools)**
+
+```bash
+# Deleting the user pool also deletes all users and the app client
+aws cognito-idp delete-user-pool --user-pool-id "$POOL_ID" --region "$REGION"
+```
+
+**4. [API Gateway](https://console.aws.amazon.com/apigateway/main/apis)**
+
+```bash
+API_ID=$(aws apigatewayv2 get-apis --region "$REGION" \
+    --query "Items[?Name=='${API_NAME}'].ApiId" --output text)
+aws apigatewayv2 delete-api --api-id "$API_ID" --region "$REGION"
+```
+
+**5. [Lambda](https://console.aws.amazon.com/lambda/home#/functions)**
+
+```bash
+aws lambda delete-function --function-name "$LAMBDA_NAME" --region "$REGION"
+```
+
+**6. [IAM role](https://console.aws.amazon.com/iam/home#/roles)**
+
+```bash
+aws iam detach-role-policy --role-name "$LAMBDA_ROLE" \
+    --policy-arn arn:aws:iam::aws:policy/AmazonDynamoDBFullAccess
+aws iam detach-role-policy --role-name "$LAMBDA_ROLE" \
+    --policy-arn arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+aws iam delete-role --role-name "$LAMBDA_ROLE"
+```
+
+**7. [DynamoDB](https://console.aws.amazon.com/dynamodbv2/home#tables)**
+
+```bash
+aws dynamodb delete-table --table-name "$TABLE_NAME" --region "$REGION"
+```
+
+Finally, clear the generated values from `cadence.yaml` — remove `cognito_user_pool_id`, `cognito_client_id`, `api_url`, `s3_bucket`, and `cloudfront_url` from the `aws:` section.
+
+---
+
 ## License
 
 MIT

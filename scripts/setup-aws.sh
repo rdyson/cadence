@@ -16,18 +16,18 @@ if [ ! -f "$CONFIG" ]; then
 fi
 
 # Parse config with Python
-eval "$(python3 - <<'PYEOF'
-import yaml, sys
+_CADENCE_ENV=$(mktemp)
+python3 - <<'PYEOF' > "$_CADENCE_ENV"
+import yaml
 with open("cadence.yaml") as f:
     c = yaml.safe_load(f)
 aws = c.get("aws", {})
 print(f'REGION="{aws.get("region", "eu-west-2")}"')
 print(f'TABLE_NAME="{aws.get("dynamodb_table", "cadence-study")}"')
 print(f'PROJECT_NAME="{c.get("name", "Cadence").lower().replace(" ", "-")}"')
-users = c.get("users", [])
-print(f'USERS_JSON=\'{yaml.dump(users)}\'')
 PYEOF
-)"
+source "$_CADENCE_ENV"
+rm -f "$_CADENCE_ENV"
 
 LAMBDA_ROLE="cadence-lambda-role"
 LAMBDA_NAME="cadence-api"
@@ -136,7 +136,7 @@ else
     API_ID=$(aws apigatewayv2 create-api \
         --name "$API_NAME" \
         --protocol-type HTTP \
-        --cors-configuration "AllowOrigins='*',AllowMethods='GET,POST,OPTIONS',AllowHeaders='Authorization,Content-Type'" \
+        --cors-configuration '{"AllowOrigins":["*"],"AllowMethods":["GET","POST","OPTIONS"],"AllowHeaders":["Authorization","Content-Type"]}' \
         --region "$REGION" \
         --query ApiId --output text)
     echo "  ✓ API created: $API_ID"
