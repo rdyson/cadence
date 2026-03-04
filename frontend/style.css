@@ -1145,4 +1145,5 @@ td.check-col { text-align: center; }
     .mobile-checks { display: flex; }
 
     :root[data-theme="lcars"] .stat-card.countdown .stat-value { font-size: 32px; }
+    :root[data-theme="lcars"] table tr:hover td { background: none; }
 }
