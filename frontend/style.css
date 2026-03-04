@@ -22,6 +22,565 @@
     --shadow-md: 0 4px 12px rgba(0,0,0,.1);
 }
 
+/* ── LCARS Theme ──────────────────────────────────────────── */
+
+:root[data-theme="lcars"] {
+    --bg: #000000;
+    --bg-card: #0a0a12;
+    --bg-hover: #141420;
+    --border: #1e1e30;
+    --text: #cc99ff;
+    --text-muted: #9977bb;
+    --text-dim: #554477;
+    --accent: #ff9900;
+    --accent-hover: #ffbb44;
+    --accent-light: #1a1000;
+    --lcars-blue: #9999ff;
+    --lcars-purple: #cc77ff;
+    --lcars-peach: #ffaa77;
+    --lcars-teal: #00cccc;
+    --lcars-pink: #ff5588;
+    --green: #00ee88;
+    --green-bg: #002a18;
+    --yellow: #ffcc00;
+    --yellow-bg: #1a1800;
+    --red: #ff4444;
+    --red-bg: #1a0808;
+    --radius: 0px;
+    --shadow: none;
+    --shadow-md: none;
+    --font-body: "Rajdhani", "Segoe UI", system-ui, sans-serif;
+    --font-display: "Orbitron", "Rajdhani", monospace;
+}
+
+:root[data-theme="lcars"] body {
+    font-family: var(--font-body);
+    font-weight: 500;
+    font-size: 15px;
+    letter-spacing: 0.02em;
+}
+
+/* ── LCARS Login ── */
+
+:root[data-theme="lcars"] #login-screen {
+    background: transparent;
+    position: relative;
+}
+
+:root[data-theme="lcars"] .login-card {
+    background: var(--bg-card);
+    border: 2px solid var(--lcars-blue);
+    border-radius: 0;
+    box-shadow:
+        0 0 20px rgba(153, 153, 255, 0.1),
+        inset 0 0 40px rgba(0, 0, 0, 0.5);
+    position: relative;
+}
+:root[data-theme="lcars"] .login-card::before {
+    content: "";
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--lcars-blue), var(--accent), var(--lcars-purple));
+}
+
+:root[data-theme="lcars"] .login-card h1 {
+    font-family: var(--font-display);
+    color: var(--accent);
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    font-size: 20px;
+}
+:root[data-theme="lcars"] .login-card #login-desc {
+    color: var(--lcars-blue);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-family: var(--font-body);
+}
+
+:root[data-theme="lcars"] .login-card input {
+    border-radius: 0;
+    border-color: var(--border);
+    background: #050508;
+    color: var(--lcars-teal);
+    font-family: var(--font-body);
+    font-size: 15px;
+    font-weight: 500;
+}
+:root[data-theme="lcars"] .login-card input:focus {
+    border-color: var(--lcars-teal);
+    box-shadow: 0 0 8px rgba(0, 204, 204, 0.2);
+}
+:root[data-theme="lcars"] .login-card input::placeholder { color: var(--text-dim); }
+
+:root[data-theme="lcars"] .login-card button {
+    background: var(--accent);
+    color: #000;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    font-weight: 700;
+    font-family: var(--font-display);
+    border-radius: 0;
+    transition: all 0.2s;
+}
+:root[data-theme="lcars"] .login-card button:hover {
+    background: var(--accent-hover);
+    box-shadow: 0 0 16px rgba(255, 153, 0, 0.3);
+}
+
+/* ── LCARS Header ── */
+
+:root[data-theme="lcars"] header {
+    background: #050508;
+    border-bottom: none;
+    position: relative;
+}
+:root[data-theme="lcars"] header::after {
+    content: "";
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 3px;
+    background: linear-gradient(90deg,
+        var(--lcars-blue) 0%, var(--lcars-blue) 15%,
+        var(--accent) 15%, var(--accent) 40%,
+        var(--lcars-purple) 40%, var(--lcars-purple) 60%,
+        var(--lcars-peach) 60%, var(--lcars-peach) 75%,
+        var(--lcars-teal) 75%, var(--lcars-teal) 100%
+    );
+}
+
+:root[data-theme="lcars"] header h1 {
+    font-family: var(--font-display);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--accent);
+    font-size: 15px;
+}
+:root[data-theme="lcars"] .tagline {
+    color: var(--lcars-blue);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+}
+:root[data-theme="lcars"] #signed-in-as { color: var(--lcars-teal); }
+:root[data-theme="lcars"] #sign-out-btn {
+    border-color: var(--border);
+    color: var(--text-muted);
+    border-radius: 0;
+    font-family: var(--font-display);
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+}
+:root[data-theme="lcars"] #sign-out-btn:hover {
+    border-color: var(--lcars-pink);
+    color: var(--lcars-pink);
+}
+
+/* ── LCARS Stats ── */
+
+:root[data-theme="lcars"] .stat-card.countdown {
+    background: linear-gradient(135deg, #0a0510 0%, #100818 100%);
+    border: 2px solid var(--lcars-purple);
+    color: var(--lcars-purple);
+    position: relative;
+}
+:root[data-theme="lcars"] .stat-card.countdown::before {
+    content: "";
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, var(--lcars-purple), transparent);
+}
+:root[data-theme="lcars"] .stat-card.countdown .stat-label {
+    color: var(--text-muted);
+    font-family: var(--font-display);
+    font-size: 9px;
+    letter-spacing: 0.15em;
+}
+:root[data-theme="lcars"] .stat-card.countdown .stat-sub {
+    color: var(--lcars-purple);
+}
+:root[data-theme="lcars"] .stat-card.countdown .stat-value {
+    font-family: var(--font-display);
+    color: #ffffff;
+    text-shadow: 0 0 20px rgba(204, 119, 255, 0.6);
+}
+
+:root[data-theme="lcars"] .stat-label {
+    font-family: var(--font-display);
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    font-size: 9px;
+}
+
+:root[data-theme="lcars"] .stat-value {
+    font-family: var(--font-display);
+}
+
+:root[data-theme="lcars"] .user-card {
+    border: 1px solid var(--border);
+    position: relative;
+}
+:root[data-theme="lcars"] .user-card::before {
+    content: "";
+    position: absolute;
+    top: 0; left: 0; bottom: 0;
+    width: 3px;
+    background: var(--lcars-blue);
+}
+:root[data-theme="lcars"] .user-card.is-me {
+    border-color: var(--accent);
+    background: rgba(255, 153, 0, 0.03);
+}
+:root[data-theme="lcars"] .user-card.is-me::before {
+    background: var(--accent);
+}
+
+:root[data-theme="lcars"] .user-name {
+    font-family: var(--font-display);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    font-size: 13px;
+}
+
+:root[data-theme="lcars"] .you-badge {
+    background: var(--accent);
+    color: #000;
+    font-family: var(--font-display);
+    border-radius: 0;
+}
+
+:root[data-theme="lcars"] .pace-badge {
+    border-radius: 0;
+    font-family: var(--font-body);
+}
+
+:root[data-theme="lcars"] .progress-bar-wrap {
+    background: var(--border);
+    border-radius: 0;
+    height: 4px;
+}
+:root[data-theme="lcars"] .progress-bar-fill {
+    background: linear-gradient(90deg, var(--lcars-teal), var(--green));
+    border-radius: 0;
+    box-shadow: 0 0 8px rgba(0, 238, 136, 0.3);
+}
+
+:root[data-theme="lcars"] .progress-text {
+    font-variant-numeric: tabular-nums;
+}
+
+/* ── LCARS Periods ── */
+
+:root[data-theme="lcars"] .period {
+    border-color: var(--border);
+    border-radius: 0;
+}
+:root[data-theme="lcars"] .period.open {
+    border-color: var(--lcars-blue);
+}
+
+:root[data-theme="lcars"] .period-header {
+    border-radius: 0;
+}
+:root[data-theme="lcars"] .period-header:hover {
+    background: var(--bg-hover);
+}
+
+:root[data-theme="lcars"] .period-chevron {
+    color: var(--lcars-blue);
+}
+
+:root[data-theme="lcars"] .period-label {
+    font-family: var(--font-display);
+    color: var(--accent);
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    font-size: 13px;
+}
+
+:root[data-theme="lcars"] .period-desc {
+    color: var(--lcars-blue);
+}
+
+:root[data-theme="lcars"] .period-hours {
+    color: var(--lcars-teal);
+    border-color: var(--border);
+    background: var(--bg);
+    border-radius: 0;
+}
+
+:root[data-theme="lcars"] .period-user-badge {
+    border-radius: 0;
+}
+
+/* ── LCARS Table ── */
+
+:root[data-theme="lcars"] table th {
+    border-bottom: 2px solid var(--lcars-blue);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-family: var(--font-display);
+    font-size: 10px;
+    color: var(--lcars-blue);
+}
+
+:root[data-theme="lcars"] table tr:hover td {
+    background: rgba(153, 153, 255, 0.03);
+}
+
+:root[data-theme="lcars"] .item-title a {
+    color: var(--lcars-teal);
+}
+:root[data-theme="lcars"] .item-title a:hover {
+    color: var(--accent);
+}
+
+:root[data-theme="lcars"] .hours-badge {
+    border-radius: 0;
+    color: var(--lcars-peach);
+    border-color: var(--border);
+}
+
+/* ── LCARS Checkboxes ── */
+
+:root[data-theme="lcars"] .check-btn {
+    background: #050508;
+    border-color: var(--border);
+    border-radius: 0;
+}
+:root[data-theme="lcars"] .check-btn:hover {
+    border-color: var(--lcars-teal);
+    box-shadow: 0 0 6px rgba(0, 204, 204, 0.2);
+}
+:root[data-theme="lcars"] .check-btn.checked {
+    background: var(--green);
+    border-color: var(--green);
+    color: #000;
+    box-shadow: 0 0 8px rgba(0, 238, 136, 0.4);
+}
+:root[data-theme="lcars"] .check-btn.readonly {
+    opacity: 0.5;
+}
+:root[data-theme="lcars"] .check-btn.readonly.checked {
+    background: var(--lcars-blue);
+    border-color: var(--lcars-blue);
+    box-shadow: none;
+    opacity: 0.5;
+}
+
+:root[data-theme="lcars"] .mobile-check {
+    border-radius: 0;
+}
+:root[data-theme="lcars"] .mobile-check.checked {
+    background: var(--green-bg);
+    border-color: var(--green);
+    color: var(--green);
+}
+
+/* ── LCARS Status colours ── */
+
+:root[data-theme="lcars"] .pace-good { background: var(--green-bg); color: var(--green); }
+:root[data-theme="lcars"] .pace-warn { background: var(--yellow-bg); color: var(--yellow); }
+:root[data-theme="lcars"] .pace-bad  { background: var(--red-bg); color: var(--red); }
+
+/* ── LCARS Celebration ── */
+
+:root[data-theme="lcars"] .celebration-card {
+    background: var(--bg-card);
+    border: 2px solid var(--green);
+    border-radius: 0;
+    box-shadow: 0 0 60px rgba(0, 238, 136, 0.15);
+}
+:root[data-theme="lcars"] .celebration-card h2 {
+    font-family: var(--font-display);
+    color: var(--green);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+}
+:root[data-theme="lcars"] .celebration-card p { color: var(--text-muted); }
+:root[data-theme="lcars"] .celebration-card button {
+    background: var(--green);
+    color: #000;
+    border-radius: 0;
+    font-family: var(--font-display);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+}
+
+/* ── LCARS Countdown override ── */
+
+:root[data-theme="lcars"] .stat-card.countdown .stat-value {
+    font-size: 52px;
+    font-family: var(--font-display);
+    line-height: 1.1;
+}
+
+/* ── LCARS Effects ── */
+
+/* Animated grid background */
+@keyframes lcars-grid-drift {
+    0% { transform: translate(0, 0); }
+    100% { transform: translate(40px, 40px); }
+}
+
+:root[data-theme="lcars"] body {
+    background:
+        linear-gradient(135deg,
+            rgba(153, 153, 255, 0.02) 0%,
+            transparent 40%,
+            rgba(255, 153, 0, 0.015) 70%,
+            rgba(204, 119, 255, 0.02) 100%
+        ),
+        #000000;
+}
+:root[data-theme="lcars"] body::before {
+    content: "";
+    position: fixed;
+    inset: -40px;
+    background-image:
+        linear-gradient(rgba(153, 153, 255, 0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(153, 153, 255, 0.04) 1px, transparent 1px);
+    background-size: 40px 40px;
+    animation: lcars-grid-drift 8s linear infinite;
+    pointer-events: none;
+    z-index: 0;
+}
+
+:root[data-theme="lcars"] #app,
+:root[data-theme="lcars"] #login-screen {
+    position: relative;
+    z-index: 1;
+}
+
+/* Scanlines — heavier */
+:root[data-theme="lcars"] #app::after,
+:root[data-theme="lcars"] #login-screen::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background: repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 2px,
+        rgba(0, 0, 0, 0.12) 2px,
+        rgba(0, 0, 0, 0.12) 4px
+    );
+    pointer-events: none;
+    z-index: 9998;
+}
+
+/* CRT vignette — heavier */
+:root[data-theme="lcars"] #app::before,
+:root[data-theme="lcars"] #login-screen::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background: radial-gradient(
+        ellipse at center,
+        transparent 45%,
+        rgba(0, 0, 0, 0.55) 100%
+    );
+    pointer-events: none;
+    z-index: 9998;
+}
+
+/* Ambient glow on main content */
+:root[data-theme="lcars"] main {
+    position: relative;
+}
+:root[data-theme="lcars"] main::before {
+    content: "";
+    position: absolute;
+    top: 0; left: 50%;
+    transform: translateX(-50%);
+    width: 80%;
+    height: 1px;
+    background: linear-gradient(90deg,
+        transparent,
+        var(--lcars-blue) 20%,
+        var(--accent) 50%,
+        var(--lcars-purple) 80%,
+        transparent
+    );
+    opacity: 0.4;
+}
+
+/* Blinking cursor on the logo */
+@keyframes lcars-blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+}
+:root[data-theme="lcars"] .logo {
+    animation: lcars-blink 2s ease-in-out infinite;
+}
+
+/* CRT flicker on countdown — more prominent */
+@keyframes lcars-flicker {
+    0%, 100% { opacity: 1; text-shadow: 0 0 20px rgba(204, 119, 255, 0.6); }
+    4% { opacity: 0.65; text-shadow: 0 0 10px rgba(204, 119, 255, 0.3); }
+    6% { opacity: 1; text-shadow: 0 0 20px rgba(204, 119, 255, 0.6); }
+    42% { opacity: 1; text-shadow: 0 0 20px rgba(204, 119, 255, 0.6); }
+    44% { opacity: 0.8; text-shadow: 0 0 25px rgba(204, 119, 255, 0.8); }
+    45% { opacity: 0.7; text-shadow: 0 0 15px rgba(204, 119, 255, 0.4); }
+    46% { opacity: 1; text-shadow: 0 0 20px rgba(204, 119, 255, 0.6); }
+    78% { opacity: 1; text-shadow: 0 0 20px rgba(204, 119, 255, 0.6); }
+    80% { opacity: 0.75; text-shadow: 0 0 30px rgba(204, 119, 255, 0.9); }
+    81% { opacity: 1; text-shadow: 0 0 20px rgba(204, 119, 255, 0.6); }
+}
+:root[data-theme="lcars"] .stat-card.countdown .stat-value {
+    animation: lcars-flicker 5s ease-in-out infinite;
+}
+
+/* Glow pulse on checked items */
+@keyframes lcars-check-glow {
+    0%, 100% { box-shadow: 0 0 6px rgba(0, 238, 136, 0.3); }
+    50% { box-shadow: 0 0 12px rgba(0, 238, 136, 0.5); }
+}
+:root[data-theme="lcars"] .check-btn.checked:not(.readonly) {
+    animation: lcars-check-glow 3s ease-in-out infinite;
+}
+
+/* Progress bar shimmer */
+@keyframes lcars-shimmer {
+    0% { background-position: -200px 0; }
+    100% { background-position: 200px 0; }
+}
+:root[data-theme="lcars"] .progress-bar-fill {
+    background: linear-gradient(
+        90deg,
+        var(--lcars-teal) 0%,
+        var(--green) 40%,
+        rgba(255, 255, 255, 0.15) 50%,
+        var(--green) 60%,
+        var(--lcars-teal) 100%
+    );
+    background-size: 400px 100%;
+    animation: lcars-shimmer 3s linear infinite;
+}
+
+/* Horizontal scan bar — sweeps down the screen */
+@keyframes lcars-scanbar {
+    0% { top: -4px; }
+    100% { top: 100vh; }
+}
+:root[data-theme="lcars"] body::after {
+    content: "";
+    position: fixed;
+    left: 0; right: 0;
+    height: 4px;
+    background: linear-gradient(180deg,
+        transparent,
+        rgba(153, 153, 255, 0.08),
+        rgba(153, 153, 255, 0.12),
+        rgba(153, 153, 255, 0.08),
+        transparent
+    );
+    animation: lcars-scanbar 6s linear infinite;
+    pointer-events: none;
+    z-index: 9999;
+}
+
 * { margin: 0; padding: 0; box-sizing: border-box; }
 
 body {
@@ -399,8 +958,11 @@ td.check-col { text-align: center; }
     display: inline-flex;
     align-items: center;
     justify-content: center;
+    vertical-align: middle;
     transition: all 0.15s;
     font-size: 13px;
+    line-height: 1;
+    padding: 0;
 }
 .check-btn:hover { border-color: var(--accent); }
 .check-btn.checked { background: var(--green); border-color: var(--green); color: white; }

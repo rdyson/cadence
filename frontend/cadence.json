@@ -3,6 +3,7 @@
   "description": "SAA-C03 cert study \u2014 March to April 2026",
   "completion_date": "2026-04-26",
   "interval": "week",
+  "theme": "lcars",
   "users": [
     {
       "id": "adam",

@@ -177,6 +177,7 @@ See [`cadence.example.yaml`](cadence.example.yaml) for a fully annotated example
 | `columns.period`           | ✅       | CSV column name for period numbers                       |
 | `columns.hours`            | ❌       | CSV column name for time estimates (omit to hide hours)  |
 | `users`                    | ✅       | List of `{ id, name, email }`                            |
+| `theme`                    | ❌       | `default` or `lcars` (dark sci-fi theme)                 |
 | `period_labels`            | ❌       | Override period headings (e.g. `1: "Week 1 — March 2"`)  |
 | `aws.region`               | ✅       | AWS region                                               |
 | `aws.dynamodb_table`       | ✅       | DynamoDB table name (set by setup script)                |

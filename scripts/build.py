@@ -140,6 +140,7 @@ def build(config_path: str = "cadence.yaml", output_path: str = "frontend/cadenc
         "description": config.get("description", ""),
         "completion_date": config.get("completion_date"),
         "interval": config.get("interval", "week"),
+        "theme": config.get("theme", "default"),
         "users": users,
         "periods": period_list,
         "total_items": len(items),

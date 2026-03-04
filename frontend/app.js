@@ -535,6 +535,11 @@ async function init() {
         return;
     }
 
+    // Apply theme
+    if (cadence.theme && cadence.theme !== "default") {
+        document.documentElement.setAttribute("data-theme", cadence.theme);
+    }
+
     document.getElementById("login-title").textContent = "Cadence";
     document.getElementById("login-desc").textContent = cadence.name;
 
