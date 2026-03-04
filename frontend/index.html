@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cadence</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- Login screen -->
+<div id="login-screen" class="hidden">
+    <div class="login-card">
+        <div class="login-logo">📐</div>
+        <h1 id="login-title">Cadence</h1>
+        <p id="login-desc">Keep the pace.</p>
+        <form id="login-form">
+            <input type="email" id="login-email" placeholder="Email" required autocomplete="email">
+            <input type="password" id="login-password" placeholder="Password" required autocomplete="current-password">
+            <button type="submit" id="login-btn">Sign in</button>
+        </form>
+        <p id="login-error" class="error hidden"></p>
+        <p id="login-change-password" class="hint hidden">First sign-in: you'll need to set a new password below.</p>
+        <div id="new-password-section" class="hidden">
+            <input type="password" id="new-password" placeholder="New password" required>
+            <button type="button" id="set-password-btn">Set new password</button>
+        </div>
+    </div>
+</div>
+
+<!-- Main dashboard -->
+<div id="app" class="hidden">
+    <header>
+        <div class="header-left">
+            <span class="logo">📐</span>
+            <div>
+                <h1 id="project-name">Cadence</h1>
+                <p id="project-desc" class="tagline"></p>
+            </div>
+        </div>
+        <div class="header-right">
+            <span id="signed-in-as"></span>
+            <button id="sign-out-btn">Sign out</button>
+        </div>
+    </header>
+
+    <main>
+        <!-- Stats bar -->
+        <section class="stats-bar">
+            <div class="stat-card countdown">
+                <div class="stat-label">Days to completion</div>
+                <div class="stat-value" id="days-remaining">—</div>
+                <div class="stat-sub" id="completion-date-label"></div>
+            </div>
+            <div id="user-progress-cards"></div>
+        </section>
+
+        <!-- Periods -->
+        <section id="periods-container"></section>
+    </main>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>

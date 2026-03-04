@@ -1,0 +1,313 @@
+{
+  "name": "AWS Solutions Architect",
+  "description": "SAA-C03 cert study \u2014 March to April 2026",
+  "completion_date": "2026-04-26",
+  "interval": "week",
+  "users": [
+    {
+      "id": "rob",
+      "name": "Rob",
+      "email": "rob@example.com"
+    },
+    {
+      "id": "adam",
+      "name": "Adam",
+      "email": "adam@example.com"
+    }
+  ],
+  "periods": [
+    {
+      "number": 1,
+      "label": "Week 1 \u2014 March 2",
+      "items": [
+        {
+          "title": "Introduction - AWS Certified Solutions Architect Associate",
+          "period": 1,
+          "hours": 0.25,
+          "url": "https://www.udemy.com/course/aws-certified-solutions-architect-associate-saa-c03/"
+        },
+        {
+          "title": "Code & Slides Download",
+          "period": 1,
+          "hours": 0.02
+        },
+        {
+          "title": "Getting started with AWS",
+          "period": 1,
+          "hours": 0.22
+        },
+        {
+          "title": "IAM & AWS CLI",
+          "period": 1,
+          "hours": 0.95,
+          "url": "https://docs.aws.amazon.com/IAM/latest/UserGuide/"
+        },
+        {
+          "title": "EC2 Fundamentals",
+          "period": 1,
+          "hours": 1.65
+        },
+        {
+          "title": "EC2 - Solutions Architect Associate Level",
+          "period": 1,
+          "hours": 0.57
+        },
+        {
+          "title": "EC2 Instance Storage",
+          "period": 1,
+          "hours": 0.98
+        }
+      ],
+      "total_hours": 4.64,
+      "description": "IAM, CLI, EC2 fundamentals"
+    },
+    {
+      "number": 2,
+      "label": "Week 2 \u2014 March 9",
+      "items": [
+        {
+          "title": "High Availability and Scalability: ELB & ASG",
+          "period": 2,
+          "hours": 1.57
+        },
+        {
+          "title": "AWS Fundamentals: RDS + Aurora + ElastiCache",
+          "period": 2,
+          "hours": 1.17
+        },
+        {
+          "title": "Route 53",
+          "period": 2,
+          "hours": 1.42,
+          "url": "https://docs.aws.amazon.com/Route53/latest/DeveloperGuide/"
+        },
+        {
+          "title": "Classic Solutions Architecture Discussions",
+          "period": 2,
+          "hours": 0.72
+        }
+      ],
+      "total_hours": 4.88,
+      "description": "High availability, RDS, Route 53"
+    },
+    {
+      "number": 3,
+      "label": "Week 3 \u2014 March 16",
+      "items": [
+        {
+          "title": "Amazon S3 Introduction",
+          "period": 3,
+          "hours": 0.83
+        },
+        {
+          "title": "Advanced Amazon S3",
+          "period": 3,
+          "hours": 0.5
+        },
+        {
+          "title": "Amazon S3 Security",
+          "period": 3,
+          "hours": 0.88
+        },
+        {
+          "title": "CloudFront & AWS Global Accelerator",
+          "period": 3,
+          "hours": 0.55
+        },
+        {
+          "title": "AWS Storage Extras",
+          "period": 3,
+          "hours": 0.63
+        },
+        {
+          "title": "Decoupling applications: SQS, SNS, Kinesis, Active MQ",
+          "period": 3,
+          "hours": 1.35
+        }
+      ],
+      "total_hours": 4.74,
+      "description": "S3, CloudFront, SQS, ECS"
+    },
+    {
+      "number": 4,
+      "label": "Week 4 \u2014 March 23",
+      "items": [
+        {
+          "title": "Containers on AWS: ECS, Fargate, ECR & EKS",
+          "period": 4,
+          "hours": 0.92
+        },
+        {
+          "title": "Serverless Overviews from a Solution Architect Perspective",
+          "period": 4,
+          "hours": 1.38
+        },
+        {
+          "title": "Serverless Solution Architecture Discussions",
+          "period": 4,
+          "hours": 0.27
+        },
+        {
+          "title": "Databases in AWS",
+          "period": 4,
+          "hours": 0.42
+        },
+        {
+          "title": "Data & Analytics",
+          "period": 4,
+          "hours": 0.8
+        },
+        {
+          "title": "Machine Learning",
+          "period": 4,
+          "hours": 0.43
+        }
+      ],
+      "total_hours": 4.22,
+      "description": "Serverless, databases, data analytics"
+    },
+    {
+      "number": 5,
+      "label": "Week 5 \u2014 March 30",
+      "items": [
+        {
+          "title": "AWS Monitoring & Audit: CloudWatch, CloudTrail & Config",
+          "period": 5,
+          "hours": 1.25
+        },
+        {
+          "title": "Identity and Access Management (IAM) - Advanced",
+          "period": 5,
+          "hours": 0.82
+        },
+        {
+          "title": "AWS Security & Encryption: KMS, SSM Parameter Store, Shield, WAF",
+          "period": 5,
+          "hours": 1.42
+        },
+        {
+          "title": "Disaster Recovery & Migrations",
+          "period": 5,
+          "hours": 0.73
+        }
+      ],
+      "total_hours": 4.22,
+      "description": "Monitoring, IAM advanced, security"
+    },
+    {
+      "number": 6,
+      "label": "Week 6 \u2014 April 6",
+      "items": [
+        {
+          "title": "Networking - VPC",
+          "period": 6,
+          "hours": 2.63
+        },
+        {
+          "title": "More Solution Architectures",
+          "period": 6,
+          "hours": 0.45
+        },
+        {
+          "title": "Other Services",
+          "period": 6,
+          "hours": 0.8
+        },
+        {
+          "title": "WhitePapers and Architectures - AWS Certified Solutions Architect Associate",
+          "period": 6,
+          "hours": 0.25
+        },
+        {
+          "title": "Preparing for the Exam + Practice Exam - AWS Certified Solutions Architect Assoc",
+          "period": 6,
+          "hours": 0.28
+        }
+      ],
+      "total_hours": 4.41,
+      "description": "VPC advanced and networking"
+    },
+    {
+      "number": 7,
+      "label": "Week 7 \u2014 April 13",
+      "items": [
+        {
+          "title": "Domain 1: Design Secure Architectures - Review",
+          "period": 7,
+          "hours": 0.75
+        },
+        {
+          "title": "Domain 1: Design Secure Architectures - Practice",
+          "period": 7,
+          "hours": 0.5
+        },
+        {
+          "title": "Domain 2: Design Resilient Architectures - Review",
+          "period": 7,
+          "hours": 0.75
+        },
+        {
+          "title": "Domain 2: Design Resilient Architectures - Practice",
+          "period": 7,
+          "hours": 1.0
+        },
+        {
+          "title": "Domain 3: Design High-Performing Architectures - Review",
+          "period": 7,
+          "hours": 0.75
+        },
+        {
+          "title": "Domain 3: Design High-Performing Architectures - Practice",
+          "period": 7,
+          "hours": 0.5
+        },
+        {
+          "title": "Domain 4: Design Cost-Optimized Architectures - Review",
+          "period": 7,
+          "hours": 0.75
+        },
+        {
+          "title": "Domain 4: Design Cost-Optimized Architectures - Practice",
+          "period": 7,
+          "hours": 0.5
+        }
+      ],
+      "total_hours": 5.5,
+      "description": "Cost optimisation + first full practice exam"
+    },
+    {
+      "number": 8,
+      "label": "Week 8 \u2014 April 20",
+      "items": [
+        {
+          "title": "Udemy Practice Exam",
+          "period": 8,
+          "hours": 2.0
+        },
+        {
+          "title": "Official Practice Exam",
+          "period": 8,
+          "hours": 2.0
+        },
+        {
+          "title": "Take exam!",
+          "period": 8,
+          "hours": 2.0
+        }
+      ],
+      "total_hours": 6.0,
+      "description": "Final review + exam"
+    }
+  ],
+  "total_items": 43,
+  "total_hours": 38.61,
+  "aws": {
+    "region": "eu-west-2",
+    "dynamodb_table": "cadence-study",
+    "cognito_user_pool_id": "",
+    "cognito_client_id": "",
+    "api_url": "",
+    "cloudfront_url": "",
+    "s3_bucket": ""
+  }
+}

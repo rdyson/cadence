@@ -1,0 +1,65 @@
+# cadence.yaml — Cadence configuration
+# Copy to cadence.yaml and fill in your details.
+# cadence.yaml and items.csv are gitignored — safe to put real emails here.
+
+# Project identity
+name: "AWS Solutions Architect"
+description: "SAA-C03 cert study — March to April 2026"
+completion_date: "2026-04-26"   # ISO 8601 date
+
+# Interval label used in UI headings
+# Options: day | week | month | year | sprint | quarter
+interval: week
+
+# Path to your CSV file (relative to this config file)
+csv: items.csv
+
+# Column names as they appear in your CSV header row
+columns:
+  title: Title       # required — item name
+  period: Week       # required — which period number this item belongs to
+  hours: Hours       # optional — time estimate (leave blank if not used)
+  url: URL           # optional — link to the resource (makes title clickable)
+
+# Users (add as many as you like)
+users:
+  - id: rob
+    name: Rob
+    email: rob@example.com
+  - id: adam
+    name: Adam
+    email: adam@example.com
+
+# Optional: short description shown under each period heading
+# Great for summarising the focus of that period.
+period_descriptions:
+  1: "IAM, CLI, and core foundations"
+  2: "EC2, storage, and networking basics"
+  3: "S3, databases, and high availability"
+  4: "Serverless, containers, and decoupling"
+  5: "Security, monitoring, and well-architected"
+  6: "Advanced networking and hybrid"
+  7: "Cost optimisation + first full practice exam"
+  8: "Final review + exam"
+
+# Optional: override period labels shown in the UI
+# If omitted, defaults to "Week 1", "Week 2", etc.
+period_labels:
+  1: "Week 1 — March 2"
+  2: "Week 2 — March 9"
+  3: "Week 3 — March 16"
+  4: "Week 4 — March 23"
+  5: "Week 5 — March 30"
+  6: "Week 6 — April 6"
+  7: "Week 7 — April 13"
+  8: "Week 8 — April 20"
+
+# AWS settings (filled in during setup)
+aws:
+  region: eu-west-2
+  dynamodb_table: cadence-study
+  cognito_user_pool_id: ""       # e.g. eu-west-2_XXXXXXXXX
+  cognito_client_id: ""          # e.g. 1abc2defghij3klmnopqrstuvwx
+  api_url: ""                    # e.g. https://abc123.execute-api.eu-west-2.amazonaws.com
+  cloudfront_url: ""             # e.g. https://d1234abcd.cloudfront.net
+  s3_bucket: ""                  # e.g. cadence-my-project
