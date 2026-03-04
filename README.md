@@ -31,16 +31,17 @@ Built for accountability. No paid subscriptions. Runs on AWS free tier.
 
 Before you start, you need:
 
-| Requirement | Notes |
-|---|---|
-| **AWS account** | [Create one free](https://aws.amazon.com/free/) |
-| **AWS CLI v2** | [Install guide](https://docs.aws.amazon.com/cli/latest/userguide/install-cliv2.html) — run `aws configure` to set up credentials |
-| **Python 3.11+** | `python3 --version` to check |
-| **Linux or macOS** | Windows users: use [WSL2](https://learn.microsoft.com/en-us/windows/wsl/install) |
+| Requirement        | Notes                                                                                                                            |
+| ------------------ | -------------------------------------------------------------------------------------------------------------------------------- |
+| **AWS account**    | [Create one free](https://aws.amazon.com/free/)                                                                                  |
+| **AWS CLI v2**     | [Install guide](https://docs.aws.amazon.com/cli/latest/userguide/install-cliv2.html) — run `aws configure` to set up credentials |
+| **Python 3.11+**   | `python3 --version` to check                                                                                                     |
+| **Linux or macOS** | Windows users: use [WSL2](https://learn.microsoft.com/en-us/windows/wsl/install)                                                 |
 
 Your AWS credentials need sufficient permissions to create DynamoDB tables, Lambda functions, API Gateway APIs, Cognito User Pools, IAM roles, S3 buckets, and CloudFront distributions. An admin-level IAM user works; a scoped policy is better for production.
 
 **Estimated AWS cost:** negligible. This project uses services well within the free tier:
+
 - DynamoDB: 25GB storage + 200M requests/month free
 - Lambda: 1M requests/month free
 - S3: 5GB storage + 20k GET requests/month free
@@ -70,6 +71,7 @@ cp items.example.csv items.csv
 ```
 
 Open `cadence.yaml` and set:
+
 - `name` — your project name
 - `completion_date` — your target end date (ISO 8601: `YYYY-MM-DD`)
 - `interval` — `week`, `month`, `day`, etc.
@@ -87,6 +89,7 @@ bash scripts/setup-aws.sh
 Press 'q' to continue at the end of each step when the script pauses.
 
 This creates all the AWS resources needed (~2 minutes):
+
 - **DynamoDB** table for checkbox state
 - **Lambda** function (the API)
 - **API Gateway** (HTTP API with Cognito authorizer)
@@ -114,6 +117,7 @@ python scripts/deploy.py
 ```
 
 This:
+
 1. Reads `cadence.yaml` + `items.csv` → builds `frontend/cadence.json`
 2. Uploads all frontend files to your S3 bucket
 3. Updates the Lambda function code
@@ -145,6 +149,7 @@ Deep dive: subtopic B,1.5,2
 Column names must match the `columns` settings in `cadence.yaml`. Defaults are `Title`, `Hours`, `Week`.
 
 **Rows are automatically skipped if:**
+
 - The title is blank
 - The title starts with `--` (e.g. `-- Total hours` summary rows)
 - The period value is not a valid integer (e.g. section header rows with no week number)
@@ -157,24 +162,24 @@ This means you can use a spreadsheet with section headers and totals — Cadence
 
 See [`cadence.example.yaml`](cadence.example.yaml) for a fully annotated example.
 
-| Field | Required | Description |
-|---|---|---|
-| `name` | ✅ | Project display name |
-| `completion_date` | ✅ | Target end date (`YYYY-MM-DD`) |
-| `interval` | ✅ | `week` / `month` / `day` / `year` / `sprint` / `quarter` |
-| `csv` | ✅ | Path to your CSV (relative to `cadence.yaml`) |
-| `columns.title` | ✅ | CSV column name for item titles |
-| `columns.period` | ✅ | CSV column name for period numbers |
-| `columns.hours` | ❌ | CSV column name for time estimates (omit to hide hours) |
-| `users` | ✅ | List of `{ id, name, email }` |
-| `period_labels` | ❌ | Override period headings (e.g. `1: "Week 1 — March 2"`) |
-| `aws.region` | ✅ | AWS region |
-| `aws.dynamodb_table` | ✅ | DynamoDB table name (set by setup script) |
-| `aws.cognito_user_pool_id` | — | Set automatically by `setup-aws.sh` |
-| `aws.cognito_client_id` | — | Set automatically by `setup-aws.sh` |
-| `aws.api_url` | — | Set automatically by `setup-aws.sh` |
-| `aws.s3_bucket` | — | Set automatically by `setup-aws.sh` |
-| `aws.cloudfront_url` | — | Set automatically by `setup-cloudfront.sh` |
+| Field                      | Required | Description                                              |
+| -------------------------- | -------- | -------------------------------------------------------- |
+| `name`                     | ✅       | Project display name                                     |
+| `completion_date`          | ✅       | Target end date (`YYYY-MM-DD`)                           |
+| `interval`                 | ✅       | `week` / `month` / `day` / `year` / `sprint` / `quarter` |
+| `csv`                      | ✅       | Path to your CSV (relative to `cadence.yaml`)            |
+| `columns.title`            | ✅       | CSV column name for item titles                          |
+| `columns.period`           | ✅       | CSV column name for period numbers                       |
+| `columns.hours`            | ❌       | CSV column name for time estimates (omit to hide hours)  |
+| `users`                    | ✅       | List of `{ id, name, email }`                            |
+| `period_labels`            | ❌       | Override period headings (e.g. `1: "Week 1 — March 2"`)  |
+| `aws.region`               | ✅       | AWS region                                               |
+| `aws.dynamodb_table`       | ✅       | DynamoDB table name (set by setup script)                |
+| `aws.cognito_user_pool_id` | —        | Set automatically by `setup-aws.sh`                      |
+| `aws.cognito_client_id`    | —        | Set automatically by `setup-aws.sh`                      |
+| `aws.api_url`              | —        | Set automatically by `setup-aws.sh`                      |
+| `aws.s3_bucket`            | —        | Set automatically by `setup-aws.sh`                      |
+| `aws.cloudfront_url`       | —        | Set automatically by `setup-cloudfront.sh`               |
 
 ---
 
@@ -208,12 +213,12 @@ DynamoDB
 
 ## Scripts
 
-| Script | When to run | Description |
-|---|---|---|
-| `scripts/setup-aws.sh` | Once (first time) | Creates all AWS infrastructure |
-| `scripts/setup-cloudfront.sh` | Once (first time) | Creates CloudFront distribution |
-| `scripts/build.py` | After editing CSV/config | Builds `frontend/cadence.json` |
-| `scripts/deploy.py` | After any changes | Build + upload to S3 + update Lambda |
+| Script                        | When to run              | Description                          |
+| ----------------------------- | ------------------------ | ------------------------------------ |
+| `scripts/setup-aws.sh`        | Once (first time)        | Creates all AWS infrastructure       |
+| `scripts/setup-cloudfront.sh` | Once (first time)        | Creates CloudFront distribution      |
+| `scripts/build.py`            | After editing CSV/config | Builds `frontend/cadence.json`       |
+| `scripts/deploy.py`           | After any changes        | Build + upload to S3 + update Lambda |
 
 `setup-aws.sh` and `setup-cloudfront.sh` are safe to re-run — they check for existing resources and skip them.
 
@@ -253,13 +258,13 @@ To remove all AWS resources created by the setup scripts, run the following comm
 
 ```bash
 # Set these from your cadence.yaml
-REGION="eu-west-2"
-BUCKET="cadence-aws-solutions-architect-681583878215"  # aws.s3_bucket
-POOL_ID="eu-west-2_CXfUleGqD"                         # aws.cognito_user_pool_id
+REGION="us-east-1"
+BUCKET="bucket_name"  # aws.s3_bucket
+POOL_ID="us-east-1-foo"                         # aws.cognito_user_pool_id
 API_NAME="cadence-api"
 LAMBDA_NAME="cadence-api"
 LAMBDA_ROLE="cadence-lambda-role"
-TABLE_NAME="cadence-study"                             # aws.dynamodb_table
+TABLE_NAME="cadence"                             # aws.dynamodb_table
 ```
 
 **1. [CloudFront distribution](https://console.aws.amazon.com/cloudfront/home)** (created by `setup-cloudfront.sh`)
