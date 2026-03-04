@@ -3,7 +3,7 @@
   "description": "SAA-C03 cert study \u2014 March to April 2026",
   "completion_date": "2026-04-26",
   "interval": "week",
-  "theme": "default",
+  "theme": "lcars",
   "users": [
     {
       "id": "adam",
@@ -340,9 +340,8 @@
     "dynamodb_table": "cadence",
     "cognito_user_pool_id": "eu-west-2_SCsrQ7gkT",
     "cognito_client_id": "40br9rtfv2ce6ombg1gutvd5qs",
-    "api_url": "http://localhost:8000",
+    "api_url": "https://u6qcnsicyg.execute-api.eu-west-2.amazonaws.com",
     "s3_bucket": "cadence-aws-solutions-architect-681583878215",
     "cloudfront_url": "https://cadence.rdyson.dev"
-  },
-  "_dev_mode": true
+  }
 }

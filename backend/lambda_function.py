@@ -43,6 +43,9 @@ def get_user_email(event: dict) -> str | None:
 def handler(event: dict, context: Any) -> dict:
     method = event.get("requestContext", {}).get("http", {}).get("method", "")
     path = event.get("rawPath", "")
+    email = get_user_email(event) or "unknown"
+    user_agent = event.get("headers", {}).get("user-agent", "unknown")
+    print(f"REQUEST: {method} {path} | user={email} | ua={user_agent[:80]}")
 
     # OPTIONS preflight
     if method == "OPTIONS":

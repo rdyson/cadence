@@ -71,6 +71,13 @@
         </a>
     </footer>
 
+<!-- CRT effects overlay — separate div to avoid Android touch issues with pseudo-elements -->
+<div id="crt-overlay" aria-hidden="true">
+    <div id="crt-scanlines"></div>
+    <div id="crt-vignette"></div>
+    <div id="crt-scanbar"></div>
+</div>
+
 <script src="app.js"></script>
 </body>
 </html>

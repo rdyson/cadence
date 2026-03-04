@@ -453,12 +453,18 @@
     z-index: 1;
 }
 
-/* Scanlines — heavier */
-:root[data-theme="lcars"] #app::after,
-:root[data-theme="lcars"] #login-screen::after {
-    content: "";
+/* CRT effects — dedicated overlay divs instead of pseudo-elements on #app,
+   to guarantee no touch interception on Android browsers */
+#crt-overlay { display: none; pointer-events: none; }
+:root[data-theme="lcars"] #crt-overlay { display: block; }
+
+#crt-scanlines, #crt-vignette {
     position: fixed;
-    inset: 0;
+    top: 0; left: 0; right: 0; bottom: 0;
+    pointer-events: none;
+    z-index: 9998;
+}
+#crt-scanlines {
     background: repeating-linear-gradient(
         0deg,
         transparent,
@@ -466,23 +472,13 @@
         rgba(0, 0, 0, 0.12) 2px,
         rgba(0, 0, 0, 0.12) 4px
     );
-    pointer-events: none;
-    z-index: 9998;
 }
-
-/* CRT vignette — heavier */
-:root[data-theme="lcars"] #app::before,
-:root[data-theme="lcars"] #login-screen::before {
-    content: "";
-    position: fixed;
-    inset: 0;
+#crt-vignette {
     background: radial-gradient(
         ellipse at center,
         transparent 45%,
         rgba(0, 0, 0, 0.55) 100%
     );
-    pointer-events: none;
-    z-index: 9998;
 }
 
 /* Ambient glow on main content */
@@ -564,8 +560,7 @@
     0% { top: -4px; }
     100% { top: 100vh; }
 }
-:root[data-theme="lcars"] body::after {
-    content: "";
+#crt-overlay #crt-scanbar {
     position: fixed;
     left: 0; right: 0;
     height: 4px;
