@@ -1,6 +1,6 @@
 # Cadence 🪿
 
-**A few hours a week, compounding.**
+**A few hours a week, compounding. At a goose's pace.**
 
 A reusable, self-hosted progress tracker for working through any structured goal with friends or colleagues. Drop in a CSV of items, configure your users and timeline, deploy to AWS, and get a shared dashboard with per-user checkboxes, progress tracking, and a countdown to completion.
 

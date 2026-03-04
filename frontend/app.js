@@ -387,8 +387,10 @@ async function handleCheck(btn) {
     updatePeriodSummaries();
     renderUserProgress();
 
-    // Check for 100% completion (own items)
+    // Check for period completion (own items)
     if (newChecked && userId === currentUser.email) {
+        checkPeriodCompletion(itemTitle);
+        // Check for full completion
         const { checked, total } = countUserProgress(userId);
         if (checked === total) triggerCompletion();
     }
@@ -439,6 +441,42 @@ function updatePeriodSummaries() {
                 : `${period.total_hours}h`;
         }
     });
+}
+
+// ── Period completion ─────────────────────────────────────────────────────────
+
+function checkPeriodCompletion(itemTitle) {
+    // Find which period this item belongs to
+    const period = cadence.periods.find(p => p.items.some(i => i.title === itemTitle));
+    if (!period) return;
+
+    const myChecks = state[currentUser.email] || {};
+    const done = period.items.filter(i => myChecks[i.title]).length;
+    if (done !== period.items.length) return;
+
+    // Already celebrated this period?
+    const key = `cadence_period_${currentUser.id}_${period.number}`;
+    if (sessionStorage.getItem(key)) return;
+    sessionStorage.setItem(key, "1");
+
+    // Find the period element and add a flash
+    const periodEl = document.querySelector(`.period[data-period="${period.number}"]`);
+    if (periodEl) {
+        periodEl.classList.add("period-complete-flash");
+        setTimeout(() => periodEl.classList.remove("period-complete-flash"), 1500);
+    }
+
+    // Show a toast
+    const toast = document.createElement("div");
+    toast.className = "period-complete-toast";
+    const msgs = ["Week complete! 🔥", "Locked in! 💪", "Section cleared! ✅", "Nailed it! 🎯", "Done and dusted! 🏁"];
+    toast.innerHTML = `<strong>${period.label}</strong> — ${msgs[Math.floor(Math.random() * msgs.length)]}`;
+    document.body.appendChild(toast);
+    requestAnimationFrame(() => toast.classList.add("visible"));
+    setTimeout(() => {
+        toast.classList.remove("visible");
+        setTimeout(() => toast.remove(), 400);
+    }, 3000);
 }
 
 // ── Completion celebration ────────────────────────────────────────────────────
@@ -618,6 +656,7 @@ async function launchApp() {
     renderPeriods();
     document.getElementById("sign-out-btn").addEventListener("click", signOut);
     show("app");
+    show("app-footer");
 }
 
 init();

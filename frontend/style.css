@@ -694,13 +694,21 @@ header h1 { font-size: 18px; font-weight: 700; }
 }
 #sign-out-btn:hover { border-color: var(--text-muted); color: var(--text); }
 
-#repo-link {
-    color: var(--text-muted);
+#app-footer {
+    text-align: center;
+    padding: 32px 16px;
+    color: var(--text-dim);
+    font-size: 12px;
+}
+#app-footer a {
+    color: var(--text-dim);
+    text-decoration: none;
     display: inline-flex;
     align-items: center;
+    gap: 6px;
     transition: color 0.15s;
 }
-#repo-link:hover { color: var(--text); }
+#app-footer a:hover { color: var(--text-muted); }
 
 /* ── Main ─────────────────────────────────────────────────── */
 
@@ -995,6 +1003,59 @@ td.check-col { text-align: center; }
 .mobile-check:not(.readonly):hover { border-color: var(--accent); color: var(--accent); }
 .mobile-check.checked { background: var(--green-bg); border-color: var(--green); color: var(--green); font-weight: 600; }
 .mobile-check.readonly.checked { background: #f3f4f6; border-color: var(--text-dim); color: var(--text-dim); }
+
+/* ── Period completion ─────────────────────────────────────── */
+
+@keyframes period-flash {
+    0% { border-color: var(--green); box-shadow: 0 0 0 rgba(22, 163, 74, 0); }
+    30% { border-color: var(--green); box-shadow: 0 0 20px rgba(22, 163, 74, 0.25); }
+    100% { border-color: var(--border); box-shadow: none; }
+}
+.period-complete-flash {
+    animation: period-flash 1.5s ease-out;
+}
+
+.period-complete-toast {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    background: var(--green);
+    color: white;
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    box-shadow: 0 8px 24px rgba(0,0,0,.2);
+    z-index: 10000;
+    opacity: 0;
+    transition: opacity 0.3s, transform 0.3s;
+    pointer-events: none;
+    white-space: nowrap;
+}
+.period-complete-toast.visible {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+}
+
+:root[data-theme="lcars"] .period-complete-toast {
+    background: var(--bg-card);
+    color: var(--green);
+    border: 2px solid var(--green);
+    border-radius: 0;
+    box-shadow: 0 0 20px rgba(0, 238, 136, 0.2);
+    font-family: var(--font-display);
+    letter-spacing: 0.04em;
+}
+
+:root[data-theme="lcars"] .period-complete-flash {
+    animation: lcars-period-flash 1.5s ease-out;
+}
+@keyframes lcars-period-flash {
+    0% { border-color: var(--green); box-shadow: 0 0 0 rgba(0, 238, 136, 0); }
+    30% { border-color: var(--green); box-shadow: 0 0 24px rgba(0, 238, 136, 0.2); }
+    100% { border-color: var(--border); box-shadow: none; }
+}
 
 /* ── Celebration ──────────────────────────────────────────── */
 
