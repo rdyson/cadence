@@ -18,7 +18,7 @@
   "periods": [
     {
       "number": 1,
-      "label": "Week 1 \u2014 March 2",
+      "label": "Week 1 (March 2) Udemy",
       "items": [
         {
           "title": "Introduction - AWS Certified Solutions Architect Associate",
@@ -29,33 +29,38 @@
         {
           "title": "Code & Slides Download",
           "period": 1,
-          "hours": 0.02
+          "hours": 0.02,
+          "url": "https://www.udemy.com/course/aws-certified-solutions-architect-associate-saa-c03/"
         },
         {
           "title": "Getting started with AWS",
           "period": 1,
-          "hours": 0.22
+          "hours": 0.22,
+          "url": "https://www.udemy.com/course/aws-certified-solutions-architect-associate-saa-c03/"
         },
         {
           "title": "IAM & AWS CLI",
           "period": 1,
           "hours": 0.95,
-          "url": "https://docs.aws.amazon.com/IAM/latest/UserGuide/"
+          "url": "https://www.udemy.com/course/aws-certified-solutions-architect-associate-saa-c03/"
         },
         {
           "title": "EC2 Fundamentals",
           "period": 1,
-          "hours": 1.65
+          "hours": 1.65,
+          "url": "https://www.udemy.com/course/aws-certified-solutions-architect-associate-saa-c03/"
         },
         {
           "title": "EC2 - Solutions Architect Associate Level",
           "period": 1,
-          "hours": 0.57
+          "hours": 0.57,
+          "url": "https://www.udemy.com/course/aws-certified-solutions-architect-associate-saa-c03/"
         },
         {
           "title": "EC2 Instance Storage",
           "period": 1,
-          "hours": 0.98
+          "hours": 0.98,
+          "url": "https://www.udemy.com/course/aws-certified-solutions-architect-associate-saa-c03/"
         }
       ],
       "total_hours": 4.64,
@@ -63,28 +68,31 @@
     },
     {
       "number": 2,
-      "label": "Week 2 \u2014 March 9",
+      "label": "Week 2 (March 9) Udemy",
       "items": [
         {
           "title": "High Availability and Scalability: ELB & ASG",
           "period": 2,
-          "hours": 1.57
+          "hours": 1.57,
+          "url": "https://www.udemy.com/course/aws-certified-solutions-architect-associate-saa-c03/"
         },
         {
           "title": "AWS Fundamentals: RDS + Aurora + ElastiCache",
           "period": 2,
-          "hours": 1.17
+          "hours": 1.17,
+          "url": "https://www.udemy.com/course/aws-certified-solutions-architect-associate-saa-c03/"
         },
         {
           "title": "Route 53",
           "period": 2,
           "hours": 1.42,
-          "url": "https://docs.aws.amazon.com/Route53/latest/DeveloperGuide/"
+          "url": "https://www.udemy.com/course/aws-certified-solutions-architect-associate-saa-c03/"
         },
         {
           "title": "Classic Solutions Architecture Discussions",
           "period": 2,
-          "hours": 0.72
+          "hours": 0.72,
+          "url": "https://www.udemy.com/course/aws-certified-solutions-architect-associate-saa-c03/"
         }
       ],
       "total_hours": 4.88,
@@ -92,37 +100,43 @@
     },
     {
       "number": 3,
-      "label": "Week 3 \u2014 March 16",
+      "label": "Week 3 (March 16) Udemy",
       "items": [
         {
           "title": "Amazon S3 Introduction",
           "period": 3,
-          "hours": 0.83
+          "hours": 0.83,
+          "url": "https://www.udemy.com/course/aws-certified-solutions-architect-associate-saa-c03/"
         },
         {
           "title": "Advanced Amazon S3",
           "period": 3,
-          "hours": 0.5
+          "hours": 0.5,
+          "url": "https://www.udemy.com/course/aws-certified-solutions-architect-associate-saa-c03/"
         },
         {
           "title": "Amazon S3 Security",
           "period": 3,
-          "hours": 0.88
+          "hours": 0.88,
+          "url": "https://www.udemy.com/course/aws-certified-solutions-architect-associate-saa-c03/"
         },
         {
           "title": "CloudFront & AWS Global Accelerator",
           "period": 3,
-          "hours": 0.55
+          "hours": 0.55,
+          "url": "https://www.udemy.com/course/aws-certified-solutions-architect-associate-saa-c03/"
         },
         {
           "title": "AWS Storage Extras",
           "period": 3,
-          "hours": 0.63
+          "hours": 0.63,
+          "url": "https://www.udemy.com/course/aws-certified-solutions-architect-associate-saa-c03/"
         },
         {
           "title": "Decoupling applications: SQS, SNS, Kinesis, Active MQ",
           "period": 3,
-          "hours": 1.35
+          "hours": 1.35,
+          "url": "https://www.udemy.com/course/aws-certified-solutions-architect-associate-saa-c03/"
         }
       ],
       "total_hours": 4.74,
@@ -130,37 +144,43 @@
     },
     {
       "number": 4,
-      "label": "Week 4 \u2014 March 23",
+      "label": "Week 4 (March 23) Udemy",
       "items": [
         {
           "title": "Containers on AWS: ECS, Fargate, ECR & EKS",
           "period": 4,
-          "hours": 0.92
+          "hours": 0.92,
+          "url": "https://www.udemy.com/course/aws-certified-solutions-architect-associate-saa-c03/"
         },
         {
           "title": "Serverless Overviews from a Solution Architect Perspective",
           "period": 4,
-          "hours": 1.38
+          "hours": 1.38,
+          "url": "https://www.udemy.com/course/aws-certified-solutions-architect-associate-saa-c03/"
         },
         {
           "title": "Serverless Solution Architecture Discussions",
           "period": 4,
-          "hours": 0.27
+          "hours": 0.27,
+          "url": "https://www.udemy.com/course/aws-certified-solutions-architect-associate-saa-c03/"
         },
         {
           "title": "Databases in AWS",
           "period": 4,
-          "hours": 0.42
+          "hours": 0.42,
+          "url": "https://www.udemy.com/course/aws-certified-solutions-architect-associate-saa-c03/"
         },
         {
           "title": "Data & Analytics",
           "period": 4,
-          "hours": 0.8
+          "hours": 0.8,
+          "url": "https://www.udemy.com/course/aws-certified-solutions-architect-associate-saa-c03/"
         },
         {
           "title": "Machine Learning",
           "period": 4,
-          "hours": 0.43
+          "hours": 0.43,
+          "url": "https://www.udemy.com/course/aws-certified-solutions-architect-associate-saa-c03/"
         }
       ],
       "total_hours": 4.22,
@@ -168,27 +188,31 @@
     },
     {
       "number": 5,
-      "label": "Week 5 \u2014 March 30",
+      "label": "Week 5 (March 30) Udemy",
       "items": [
         {
           "title": "AWS Monitoring & Audit: CloudWatch, CloudTrail & Config",
           "period": 5,
-          "hours": 1.25
+          "hours": 1.25,
+          "url": "https://www.udemy.com/course/aws-certified-solutions-architect-associate-saa-c03/"
         },
         {
           "title": "Identity and Access Management (IAM) - Advanced",
           "period": 5,
-          "hours": 0.82
+          "hours": 0.82,
+          "url": "https://www.udemy.com/course/aws-certified-solutions-architect-associate-saa-c03/"
         },
         {
           "title": "AWS Security & Encryption: KMS, SSM Parameter Store, Shield, WAF",
           "period": 5,
-          "hours": 1.42
+          "hours": 1.42,
+          "url": "https://www.udemy.com/course/aws-certified-solutions-architect-associate-saa-c03/"
         },
         {
           "title": "Disaster Recovery & Migrations",
           "period": 5,
-          "hours": 0.73
+          "hours": 0.73,
+          "url": "https://www.udemy.com/course/aws-certified-solutions-architect-associate-saa-c03/"
         }
       ],
       "total_hours": 4.22,
@@ -196,80 +220,87 @@
     },
     {
       "number": 6,
-      "label": "Week 6 \u2014 April 6",
+      "label": "Week 6 (April 6) Udemy",
       "items": [
         {
           "title": "Networking - VPC",
           "period": 6,
-          "hours": 2.63
+          "hours": 2.63,
+          "url": "https://www.udemy.com/course/aws-certified-solutions-architect-associate-saa-c03/"
         },
         {
           "title": "More Solution Architectures",
           "period": 6,
-          "hours": 0.45
+          "hours": 0.45,
+          "url": "https://www.udemy.com/course/aws-certified-solutions-architect-associate-saa-c03/"
         },
         {
           "title": "Other Services",
           "period": 6,
-          "hours": 0.8
+          "hours": 0.8,
+          "url": "https://www.udemy.com/course/aws-certified-solutions-architect-associate-saa-c03/"
         },
         {
           "title": "WhitePapers and Architectures - AWS Certified Solutions Architect Associate",
           "period": 6,
-          "hours": 0.25
-        },
-        {
-          "title": "Preparing for the Exam + Practice Exam - AWS Certified Solutions Architect Assoc",
-          "period": 6,
-          "hours": 0.28
+          "hours": 0.25,
+          "url": "https://www.udemy.com/course/aws-certified-solutions-architect-associate-saa-c03/"
         }
       ],
-      "total_hours": 4.41,
+      "total_hours": 4.13,
       "description": "Advanced networking and hybrid"
     },
     {
       "number": 7,
-      "label": "Week 7 \u2014 April 13",
+      "label": "Week 7 (April 13) AWS Skill Builder",
       "items": [
         {
           "title": "Domain 1: Design Secure Architectures - Review",
           "period": 7,
-          "hours": 0.75
+          "hours": 0.75,
+          "url": "https://skillbuilder.aws/category/exam-prep/solutions-architect-associate-SAA-C03"
         },
         {
           "title": "Domain 1: Design Secure Architectures - Practice",
           "period": 7,
-          "hours": 0.5
+          "hours": 0.5,
+          "url": "https://skillbuilder.aws/category/exam-prep/solutions-architect-associate-SAA-C03"
         },
         {
           "title": "Domain 2: Design Resilient Architectures - Review",
           "period": 7,
-          "hours": 0.75
+          "hours": 0.75,
+          "url": "https://skillbuilder.aws/category/exam-prep/solutions-architect-associate-SAA-C03"
         },
         {
           "title": "Domain 2: Design Resilient Architectures - Practice",
           "period": 7,
-          "hours": 1.0
+          "hours": 1.0,
+          "url": "https://skillbuilder.aws/category/exam-prep/solutions-architect-associate-SAA-C03"
         },
         {
           "title": "Domain 3: Design High-Performing Architectures - Review",
           "period": 7,
-          "hours": 0.75
+          "hours": 0.75,
+          "url": "https://skillbuilder.aws/category/exam-prep/solutions-architect-associate-SAA-C03"
         },
         {
           "title": "Domain 3: Design High-Performing Architectures - Practice",
           "period": 7,
-          "hours": 0.5
+          "hours": 0.5,
+          "url": "https://skillbuilder.aws/category/exam-prep/solutions-architect-associate-SAA-C03"
         },
         {
           "title": "Domain 4: Design Cost-Optimized Architectures - Review",
           "period": 7,
-          "hours": 0.75
+          "hours": 0.75,
+          "url": "https://skillbuilder.aws/category/exam-prep/solutions-architect-associate-SAA-C03"
         },
         {
           "title": "Domain 4: Design Cost-Optimized Architectures - Practice",
           "period": 7,
-          "hours": 0.5
+          "hours": 0.5,
+          "url": "https://skillbuilder.aws/category/exam-prep/solutions-architect-associate-SAA-C03"
         }
       ],
       "total_hours": 5.5,
@@ -277,17 +308,19 @@
     },
     {
       "number": 8,
-      "label": "Week 8 \u2014 April 20",
+      "label": "Week 8 (April 20) Exam Prep & Exam",
       "items": [
         {
           "title": "Udemy Practice Exam",
           "period": 8,
-          "hours": 2.0
+          "hours": 2.0,
+          "url": "https://www.udemy.com/course/aws-certified-solutions-architect-associate-saa-c03/"
         },
         {
           "title": "Official Practice Exam",
           "period": 8,
-          "hours": 2.0
+          "hours": 2.0,
+          "url": "https://skillbuilder.aws/learn/R3KVD4BBJY/official-practice-exam-aws-certified-solutions-architect--associate-saac03--english/W7GU3R1HCT"
         },
         {
           "title": "Take exam!",
@@ -299,8 +332,8 @@
       "description": "Final review + exam"
     }
   ],
-  "total_items": 43,
-  "total_hours": 38.61,
+  "total_items": 42,
+  "total_hours": 38.33,
   "aws": {
     "region": "eu-west-2",
     "dynamodb_table": "cadence",
