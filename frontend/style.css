@@ -589,6 +589,7 @@ body {
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
     font-size: 14px;
     line-height: 1.5;
+    overflow-x: hidden;
 }
 
 .hidden { display: none !important; }
@@ -692,6 +693,14 @@ header h1 { font-size: 18px; font-weight: 700; }
     white-space: nowrap;
 }
 #sign-out-btn:hover { border-color: var(--text-muted); color: var(--text); }
+
+#repo-link {
+    color: var(--text-muted);
+    display: inline-flex;
+    align-items: center;
+    transition: color 0.15s;
+}
+#repo-link:hover { color: var(--text); }
 
 /* ── Main ─────────────────────────────────────────────────── */
 
@@ -1073,4 +1082,6 @@ td.check-col { text-align: center; }
     .item-title { display: block; font-size: 13px; font-weight: 500; margin-bottom: 4px; }
     .hours-inline { display: inline; margin-left: 6px; }
     .mobile-checks { display: flex; }
+
+    :root[data-theme="lcars"] .stat-card.countdown .stat-value { font-size: 32px; }
 }

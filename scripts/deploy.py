@@ -112,14 +112,15 @@ def deploy(config_path: str = "cadence.yaml", skip_build: bool = False, skip_lam
     # Step 4: Invalidate CloudFront (if configured)
     if cf_url:
         print("▶ Invalidating CloudFront cache...")
-        distribution_id = cf_url.split(".")[0].replace("https://", "")
+        cf_hostname = cf_url.replace("https://", "").replace("http://", "").strip("/")
         try:
             cf = boto3.client("cloudfront", region_name="us-east-1")
-            # Get distribution ID from domain
+            # Get distribution ID from domain or alias
             dists = cf.list_distributions()
             dist_id = None
             for d in dists.get("DistributionList", {}).get("Items", []):
-                if d.get("DomainName", "").startswith(distribution_id):
+                aliases = d.get("Aliases", {}).get("Items", [])
+                if cf_hostname in aliases or d.get("DomainName", "") == cf_hostname:
                     dist_id = d["Id"]
                     break
             if dist_id:
