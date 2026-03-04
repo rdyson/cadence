@@ -7,12 +7,12 @@
     {
       "id": "rob",
       "name": "Rob",
-      "email": "rob@example.com"
+      "email": "rob.dyson@codingscape.com"
     },
     {
       "id": "adam",
       "name": "Adam",
-      "email": "adam@example.com"
+      "email": "adam.fenton@codingscape.com"
     }
   ],
   "periods": [
@@ -59,7 +59,7 @@
         }
       ],
       "total_hours": 4.64,
-      "description": "IAM, CLI, EC2 fundamentals"
+      "description": "IAM, CLI, and core foundations"
     },
     {
       "number": 2,
@@ -88,7 +88,7 @@
         }
       ],
       "total_hours": 4.88,
-      "description": "High availability, RDS, Route 53"
+      "description": "EC2, storage, and networking basics"
     },
     {
       "number": 3,
@@ -126,7 +126,7 @@
         }
       ],
       "total_hours": 4.74,
-      "description": "S3, CloudFront, SQS, ECS"
+      "description": "S3, databases, and high availability"
     },
     {
       "number": 4,
@@ -164,7 +164,7 @@
         }
       ],
       "total_hours": 4.22,
-      "description": "Serverless, databases, data analytics"
+      "description": "Serverless, containers, and decoupling"
     },
     {
       "number": 5,
@@ -192,7 +192,7 @@
         }
       ],
       "total_hours": 4.22,
-      "description": "Monitoring, IAM advanced, security"
+      "description": "Security, monitoring, and well-architected"
     },
     {
       "number": 6,
@@ -225,7 +225,7 @@
         }
       ],
       "total_hours": 4.41,
-      "description": "VPC advanced and networking"
+      "description": "Advanced networking and hybrid"
     },
     {
       "number": 7,
@@ -303,11 +303,11 @@
   "total_hours": 38.61,
   "aws": {
     "region": "eu-west-2",
-    "dynamodb_table": "cadence-study",
-    "cognito_user_pool_id": "",
-    "cognito_client_id": "",
-    "api_url": "",
-    "cloudfront_url": "",
-    "s3_bucket": ""
+    "dynamodb_table": "cadence",
+    "cognito_user_pool_id": "eu-west-2_SCsrQ7gkT",
+    "cognito_client_id": "40br9rtfv2ce6ombg1gutvd5qs",
+    "api_url": "https://u6qcnsicyg.execute-api.eu-west-2.amazonaws.com",
+    "s3_bucket": "cadence-aws-solutions-architect-681583878215",
+    "cloudfront_url": "https://d20frcihwenzcm.cloudfront.net"
   }
 }

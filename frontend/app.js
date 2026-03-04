@@ -17,10 +17,13 @@ function cognitoEndpoint() {
     return `https://cognito-idp.${region}.amazonaws.com/`;
 }
 
-async function cognitoRequest(body) {
+async function cognitoRequest(action, body) {
     const resp = await fetch(cognitoEndpoint(), {
         method: "POST",
-        headers: { "Content-Type": "application/x-amz-json-1.1" },
+        headers: {
+            "Content-Type": "application/x-amz-json-1.1",
+            "X-Amz-Target": `AWSCognitoIdentityProviderService.${action}`,
+        },
         body: JSON.stringify(body),
     });
     const data = await resp.json();
@@ -29,21 +32,19 @@ async function cognitoRequest(body) {
 }
 
 async function signIn(email, password) {
-    return cognitoRequest({
+    return cognitoRequest("InitiateAuth", {
         AuthFlow: "USER_PASSWORD_AUTH",
         ClientId: cadence.aws.cognito_client_id,
         AuthParameters: { USERNAME: email, PASSWORD: password },
-        "__type": "InitiateAuth",
     });
 }
 
 async function respondToNewPasswordChallenge(session, email, newPassword) {
-    return cognitoRequest({
+    return cognitoRequest("RespondToAuthChallenge", {
         ChallengeName: "NEW_PASSWORD_REQUIRED",
         ClientId: cadence.aws.cognito_client_id,
         ChallengeResponses: { USERNAME: email, NEW_PASSWORD: newPassword },
         Session: session,
-        "__type": "RespondToAuthChallenge",
     });
 }
 
@@ -52,6 +53,9 @@ function storeTokens(authResult) {
     const expiry = Date.now() + (authResult.ExpiresIn * 1000);
     sessionStorage.setItem("cadence_access_token", accessToken);
     sessionStorage.setItem("cadence_token_expiry", expiry);
+    if (authResult.IdToken) {
+        sessionStorage.setItem("cadence_id_token", authResult.IdToken);
+    }
     if (authResult.RefreshToken) {
         sessionStorage.setItem("cadence_refresh_token", authResult.RefreshToken);
     }
@@ -70,19 +74,24 @@ function loadStoredToken() {
 function clearTokens() {
     accessToken = null;
     sessionStorage.removeItem("cadence_access_token");
+    sessionStorage.removeItem("cadence_id_token");
     sessionStorage.removeItem("cadence_token_expiry");
     sessionStorage.removeItem("cadence_refresh_token");
 }
 
-function getUserFromToken(token) {
+function getUserFromToken() {
     try {
+        // Use ID token for identity (has email claim); access token doesn't
+        const idToken = sessionStorage.getItem("cadence_id_token");
+        const token = idToken || accessToken;
         const payload = JSON.parse(atob(token.split(".")[1]));
         const email = payload.email || payload["cognito:username"] || "";
         const user = cadence.users.find(u =>
             u.email?.toLowerCase() === email.toLowerCase() ||
             u.id === payload["cognito:username"]
         );
-        return user || { id: payload["cognito:username"], name: email, email };
+        if (!user) { clearTokens(); return null; }
+        return user;
     } catch {
         return null;
     }
@@ -511,7 +520,7 @@ async function init() {
     document.getElementById("login-desc").textContent = cadence.description || "Keep the pace.";
 
     if (loadStoredToken()) {
-        currentUser = getUserFromToken(accessToken);
+        currentUser = getUserFromToken();
         if (currentUser) { await launchApp(); return; }
     }
 
@@ -548,7 +557,7 @@ function setupLogin() {
                 return;
             }
             storeTokens(result.AuthenticationResult);
-            currentUser = getUserFromToken(result.AuthenticationResult.AccessToken);
+            currentUser = getUserFromToken();
             await launchApp();
         } catch (err) {
             const msg = err.__type === "NotAuthorizedException"
@@ -566,7 +575,7 @@ function setupLogin() {
         try {
             const result = await respondToNewPasswordChallenge(pendingSession, pendingEmail, newPw);
             storeTokens(result.AuthenticationResult);
-            currentUser = getUserFromToken(result.AuthenticationResult.AccessToken);
+            currentUser = getUserFromToken();
             await launchApp();
         } catch (err) {
             const errorEl = document.getElementById("login-error");

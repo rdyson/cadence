@@ -14,7 +14,8 @@ if [ ! -f "$ROOT/cadence.yaml" ]; then
 fi
 
 # Parse config
-eval "$(python3 - <<'PYEOF'
+_CADENCE_ENV=$(mktemp)
+python3 - <<'PYEOF' > "$_CADENCE_ENV"
 import yaml
 with open("cadence.yaml") as f:
     c = yaml.safe_load(f)
@@ -23,7 +24,8 @@ print(f'REGION="{aws.get("region", "eu-west-2")}"')
 print(f'BUCKET="{aws.get("s3_bucket", "")}"')
 print(f'EXISTING_CF_URL="{aws.get("cloudfront_url", "")}"')
 PYEOF
-)"
+source "$_CADENCE_ENV"
+rm -f "$_CADENCE_ENV"
 
 if [ -z "$BUCKET" ]; then
     echo "Error: aws.s3_bucket not set in cadence.yaml — run setup-aws.sh first."

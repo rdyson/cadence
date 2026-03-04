@@ -2,3 +2,5 @@ PLAN.md
 items.csv
 cadence.yaml
 .venv
+backend/lambda.zip
+frontend/cadence.json

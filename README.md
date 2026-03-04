@@ -127,11 +127,16 @@ Your dashboard is now live at the CloudFront URL printed in step 4.
 
 ### 6. Sign in
 
-Each user in `cadence.yaml` gets a Cognito account created with a **temporary password: `CadenceChange1!`**
+Each user in `cadence.yaml` gets a Cognito account with a **randomly generated temporary password**, printed in the script output:
+
+```
+  ✓ Created user: Rob (rob@example.com) — temp password: a8Kz3xQ_mNpR!A1a
+  ✓ Created user: Adam (adam@example.com) — temp password: bT7wYc2_hLsJ!A1a
+```
 
 On first sign-in, Cognito will prompt each user to set their own password. This is handled automatically by the login screen — they'll see a "Set new password" field appear after their first attempt.
 
-Share the dashboard URL and temporary password with your collaborators.
+Share the dashboard URL and each user's temporary password with them.
 
 ---
 
@@ -229,7 +234,7 @@ DynamoDB
 1. Add them to `users` in `cadence.yaml`
 2. Run `bash scripts/setup-aws.sh` (skips existing resources, creates the new Cognito user)
 3. Run `python scripts/deploy.py` (rebuilds `cadence.json` with the new user column)
-4. Share the dashboard URL + temporary password `CadenceChange1!`
+4. Share the dashboard URL + the temporary password from the setup output
 
 ---
 

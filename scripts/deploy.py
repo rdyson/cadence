@@ -97,6 +97,9 @@ def deploy(config_path: str = "cadence.yaml", skip_build: bool = False, skip_lam
             FunctionName=lambda_name,
             ZipFile=buffer.read(),
         )
+        # Wait for code update to finish before updating configuration
+        waiter = lam.get_waiter("function_updated_v2")
+        waiter.wait(FunctionName=lambda_name)
         # Update env vars in case table name changed
         lam.update_function_configuration(
             FunctionName=lambda_name,

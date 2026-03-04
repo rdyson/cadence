@@ -258,27 +258,34 @@ fi
 echo ""
 echo "▶ Step 6: Creating Cognito users from cadence.yaml"
 
-python3 - "$POOL_ID" "$REGION" <<'PYEOF'
-import yaml, boto3, sys
-pool_id, region = sys.argv[1], sys.argv[2]
-client = boto3.client("cognito-idp", region_name=region)
+_USERS_FILE=$(mktemp)
+python3 - <<'PYEOF' > "$_USERS_FILE"
+import yaml, json
 with open("cadence.yaml") as f:
     config = yaml.safe_load(f)
 for user in config.get("users", []):
-    email = user.get("email", "")
-    name = user.get("name", user.get("id", ""))
-    try:
-        client.admin_create_user(
-            UserPoolId=pool_id,
-            Username=email,
-            UserAttributes=[{"Name": "email", "Value": email}, {"Name": "email_verified", "Value": "true"}],
-            TemporaryPassword="CadenceChange1!",
-            MessageAction="SUPPRESS",
-        )
-        print(f"  ✓ Created user: {name} ({email}) — temp password: CadenceChange1!")
-    except client.exceptions.UsernameExistsException:
-        print(f"  ✓ User already exists: {name} ({email})")
+    print(json.dumps({"email": user.get("email", ""), "name": user.get("name", user.get("id", ""))}))
 PYEOF
+
+while IFS= read -r line; do
+    EMAIL=$(echo "$line" | python3 -c "import json,sys; print(json.load(sys.stdin)['email'])")
+    NAME=$(echo "$line" | python3 -c "import json,sys; print(json.load(sys.stdin)['name'])")
+
+    if aws cognito-idp admin-get-user --user-pool-id "$POOL_ID" --username "$EMAIL" --region "$REGION" &>/dev/null; then
+        echo "  ✓ User already exists: $NAME ($EMAIL)"
+    else
+        TEMP_PW=$(python3 -c "import secrets, string; print(secrets.token_urlsafe(12) + '!A1a')")
+        aws cognito-idp admin-create-user \
+            --user-pool-id "$POOL_ID" \
+            --username "$EMAIL" \
+            --user-attributes Name=email,Value="$EMAIL" Name=email_verified,Value=true \
+            --temporary-password "$TEMP_PW" \
+            --message-action SUPPRESS \
+            --region "$REGION" > /dev/null
+        echo "  ✓ Created user: $NAME ($EMAIL) — temp password: $TEMP_PW"
+    fi
+done < "$_USERS_FILE"
+rm -f "$_USERS_FILE"
 
 # ── Step 7: S3 bucket ─────────────────────────────────────────────────────────
 echo ""
@@ -342,6 +349,6 @@ echo "  2. python scripts/deploy.py"
 echo "  3. Set up CloudFront distribution pointing to s3://$BUCKET"
 echo "     (or access via S3 website URL for testing)"
 echo ""
-echo "  Users created with temp password: CadenceChange1!"
+echo "  Temp passwords were printed above — share them with each user."
 echo "  Each user will be prompted to set a new password on first sign-in."
 echo "================================="
