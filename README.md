@@ -30,10 +30,20 @@ Runs on AWS free tier.
 
 ## Screenshots
 
-![Desktop - Default](docs/desktop-default.png)
-![Mobile - Default](docs/mobile-default.png)
-![Desktop - LCARS](docs/desktop-lcars.png)
-![Mobile - LCARS](docs/mobile-lcars.png)
+<table>
+<tr>
+<th>Default theme</th>
+<th>LCARS theme</th>
+</tr>
+<tr>
+<td><img src="docs/desktop-default.png" alt="Desktop — Default theme" width="500"></td>
+<td><img src="docs/desktop-lcars.png" alt="Desktop — LCARS theme" width="500"></td>
+</tr>
+<tr>
+<td><img src="docs/mobile-default.png" alt="Mobile — Default theme" width="250"></td>
+<td><img src="docs/mobile-lcars.png" alt="Mobile — LCARS theme" width="250"></td>
+</tr>
+</table>
 
 ## Architecture
 
