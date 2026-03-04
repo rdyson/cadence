@@ -4,7 +4,7 @@
 
 A reusable, self-hosted progress tracker for working through any structured goal with friends or colleagues. Drop in a CSV of items, configure your users and timeline, deploy to AWS, and get a shared dashboard with per-user checkboxes, progress tracking, and a countdown to completion.
 
-Built for accountability. No paid subscriptions. Runs on AWS free tier.
+Runs on AWS free tier.
 
 ## Use cases
 
@@ -53,7 +53,7 @@ Built for accountability. No paid subscriptions. Runs on AWS free tier.
                       │                 │
                       │          ┌──────┴───────┐
                       │          │   Cognito    │
-                      │          │ JWT Authorizer│
+                      │          │   JWT Auth   │
                       │          └──────┬───────┘
                       ▼                 ▼
                ┌──────────────┐  ┌──────────────┐
@@ -68,7 +68,13 @@ Built for accountability. No paid subscriptions. Runs on AWS free tier.
                                  └──────────────┘
 ```
 
-**Data flow:** The frontend is a static SPA served from S3 via CloudFront. On login, Cognito issues a JWT. Every API call includes the JWT in the `Authorization` header. API Gateway validates it against the Cognito User Pool before the request reaches Lambda. Lambda reads/writes checkbox state in DynamoDB, keyed by the user's email extracted from the JWT claims.
+**Data flow:**
+
+* The frontend is a static SPA served from S3 via CloudFront.
+* On login, Cognito issues a JWT.
+* Every API call includes the JWT in the `Authorization` header.
+* API Gateway validates it against the Cognito User Pool before the request reaches Lambda.
+* Lambda reads/writes checkbox state in DynamoDB, keyed by the user's email extracted from the JWT claims.
 
 ---
 
@@ -173,7 +179,7 @@ Column names must match the `columns` settings in `cadence.yaml`. Defaults are `
 **Rows are automatically skipped if:**
 
 - The title is blank
-- The title starts with `--` (e.g. `-- Total hours` summary rows)
+- The title starts with `--` (e.g. `-- Foo bar` comment rows)
 - The period value is not a valid integer (e.g. section header rows with no week number)
 
 This means you can use a spreadsheet with section headers and totals — Cadence will ignore them cleanly.
@@ -192,10 +198,10 @@ See [`cadence.example.yaml`](cadence.example.yaml) for a fully annotated example
 | `csv`                      | ✅       | Path to your CSV (relative to `cadence.yaml`)            |
 | `columns.title`            | ✅       | CSV column name for item titles                          |
 | `columns.period`           | ✅       | CSV column name for period numbers                       |
-| `columns.hours`            | ❌       | CSV column name for time estimates (omit to hide hours)  |
+| `columns.hours`            | —       | CSV column name for time estimates (omit to hide hours)  |
 | `users`                    | ✅       | List of `{ id, name, email }`                            |
-| `theme`                    | ❌       | `default` or `lcars` (dark sci-fi theme)                 |
-| `period_labels`            | ❌       | Override period headings (e.g. `1: "Week 1 — March 2"`)  |
+| `theme`                    | —       | `default` or `lcars` (dark sci-fi theme)                 |
+| `period_labels`            | —       | Override period headings (e.g. `1: "Week 1 — March 2"`)  |
 | `aws.region`               | ✅       | AWS region                                               |
 | `aws.dynamodb_table`       | ✅       | DynamoDB table name (set by setup script)                |
 | `aws.cognito_user_pool_id` | —        | Set automatically by `setup-aws.sh`                      |
@@ -230,7 +236,12 @@ DynamoDB
   └── Table: one item per user, map of checked item titles
 ```
 
-**How auth works:** Cognito issues a JWT on login. The browser includes it in every API request. API Gateway validates the token against your Cognito User Pool before the Lambda ever runs. The Lambda extracts the username from the validated claims — no auth logic in application code.
+**How auth works:**
+
+1. Cognito issues a JWT on login.
+2. The browser includes it in every API request.
+3. API Gateway validates the token against your Cognito User Pool before the Lambda ever runs.
+4. The Lambda extracts the username from the validated claims — no auth logic in application code.
 
 ---
 
