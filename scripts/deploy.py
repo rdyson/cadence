@@ -10,8 +10,10 @@ from __future__ import annotations
 import argparse
 import subprocess
 import sys
+import warnings
 from pathlib import Path
 
+warnings.filterwarnings("ignore", message=".*Boto3 will no longer support.*")
 import boto3
 import yaml
 

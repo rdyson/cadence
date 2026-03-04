@@ -11,7 +11,6 @@ import os
 from typing import Any
 
 import boto3
-from boto3.dynamodb.conditions import Key
 
 TABLE_NAME = os.environ.get("DYNAMODB_TABLE", "cadence-study")
 dynamodb = boto3.resource("dynamodb")
@@ -33,13 +32,12 @@ def response(status: int, body: Any) -> dict:
     }
 
 
-def get_user_id(event: dict) -> str | None:
-    """Extract user ID from Cognito JWT claims injected by API Gateway."""
+def get_user_email(event: dict) -> str | None:
+    """Extract user email from Cognito JWT claims injected by API Gateway."""
     ctx = event.get("requestContext", {})
     authorizer = ctx.get("authorizer", {})
     claims = authorizer.get("jwt", {}).get("claims", {})
-    # Use 'cognito:username' if present, fall back to 'sub'
-    return claims.get("cognito:username") or claims.get("sub")
+    return claims.get("email")
 
 
 def handler(event: dict, context: Any) -> dict:
@@ -62,9 +60,9 @@ def handler(event: dict, context: Any) -> dict:
 
 
 def handle_get_state(event: dict) -> dict:
-    user_id = get_user_id(event)
-    if not user_id:
-        return response(401, {"error": "Unauthorized"})
+    email = get_user_email(event)
+    if not email:
+        return response(401, {"error": "Unauthorized — no email in token"})
 
     try:
         result = table.scan()
@@ -79,9 +77,9 @@ def handle_get_state(event: dict) -> dict:
 
 
 def handle_post_state(event: dict) -> dict:
-    user_id = get_user_id(event)
-    if not user_id:
-        return response(401, {"error": "Unauthorized"})
+    email = get_user_email(event)
+    if not email:
+        return response(401, {"error": "Unauthorized — no email in token"})
 
     try:
         body = json.loads(event.get("body") or "{}")
@@ -98,35 +96,21 @@ def handle_post_state(event: dict) -> dict:
         return response(400, {"error": "'checked' must be a boolean"})
 
     try:
+        # Read-modify-write: simple and avoids nested attribute issues
+        result = table.get_item(Key={"userId": email})
+        item = result.get("Item", {"userId": email, "checks": {}})
+        checks = item.get("checks", {})
+
         if checked:
-            # Add checkbox
-            table.update_item(
-                Key={"userId": user_id},
-                UpdateExpression="SET checks.#item = :val, updatedAt = :ts",
-                ExpressionAttributeNames={"#item": item_title},
-                ExpressionAttributeValues={
-                    ":val": True,
-                    ":ts": _now_iso(),
-                },
-            )
+            checks[item_title] = True
         else:
-            # Remove checkbox (treat unchecked as absent rather than False)
-            table.update_item(
-                Key={"userId": user_id},
-                UpdateExpression="REMOVE checks.#item SET updatedAt = :ts",
-                ExpressionAttributeNames={"#item": item_title},
-                ExpressionAttributeValues={":ts": _now_iso()},
-            )
-        return response(200, {"ok": True})
-    except table.meta.client.exceptions.ValidationException:
-        # checks map doesn't exist yet — create it
-        table.put_item(
-            Item={
-                "userId": user_id,
-                "checks": {item_title: checked},
-                "updatedAt": _now_iso(),
-            }
-        )
+            checks.pop(item_title, None)
+
+        table.put_item(Item={
+            "userId": email,
+            "checks": checks,
+            "updatedAt": _now_iso(),
+        })
         return response(200, {"ok": True})
     except Exception as e:
         return response(500, {"error": str(e)})

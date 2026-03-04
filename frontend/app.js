@@ -99,9 +99,14 @@ function getUserFromToken() {
 
 // ── API ───────────────────────────────────────────────────────────────────────
 
+function authToken() {
+    // Prefer ID token (has email claim needed by Lambda)
+    return sessionStorage.getItem("cadence_id_token") || accessToken;
+}
+
 async function apiGet(path) {
     const resp = await fetch(cadence.aws.api_url + path, {
-        headers: { Authorization: `Bearer ${accessToken}` },
+        headers: { Authorization: `Bearer ${authToken()}` },
     });
     if (resp.status === 401) { signOut(); return null; }
     return resp.json();
@@ -111,7 +116,7 @@ async function apiPost(path, body) {
     const resp = await fetch(cadence.aws.api_url + path, {
         method: "POST",
         headers: {
-            Authorization: `Bearer ${accessToken}`,
+            Authorization: `Bearer ${authToken()}`,
             "Content-Type": "application/json",
         },
         body: JSON.stringify(body),
@@ -202,9 +207,9 @@ function renderUserProgress() {
     container.innerHTML = "";
     for (const user of cadence.users) {
         const isMe = user.id === currentUser.id;
-        const { checked, total, checkedHours, totalHours } = countUserProgress(user.id);
+        const { checked, total, checkedHours, totalHours } = countUserProgress(user.email);
         const pct = total > 0 ? Math.round((checked / total) * 100) : 0;
-        const pace = getPaceStatus(user.id);
+        const pace = getPaceStatus(user.email);
 
         const card = document.createElement("div");
         card.className = `user-card${isMe ? " is-me" : ""}`;
@@ -257,7 +262,7 @@ function renderPeriods() {
 
         // Per-user summary badges
         const userSummary = cadence.users.map(user => {
-            const userChecks = state[user.id] || {};
+            const userChecks = state[user.email] || {};
             const done = period.items.filter(i => userChecks[i.title]).length;
             const total = period.items.length;
             const allDone = done === total && total > 0;
@@ -273,12 +278,12 @@ function renderPeriods() {
         const rows = period.items.map(item => {
             const userCells = cadence.users.map(user => {
                 const isMe = user.id === currentUser.id;
-                const checked = !!(state[user.id] || {})[item.title];
+                const checked = !!(state[user.email] || {})[item.title];
                 return `<td class="check-col">
                     <button
                         class="check-btn${checked ? " checked" : ""}${!isMe ? " readonly" : ""}"
                         data-item="${esc(item.title)}"
-                        data-user="${esc(user.id)}"
+                        data-user="${esc(user.email)}"
                         data-me="${isMe}"
                         aria-label="${checked ? "Uncheck" : "Check"} ${esc(item.title)}"
                     >${checked ? "✓" : ""}</button>
@@ -297,10 +302,10 @@ function renderPeriods() {
             // Mobile: user check cells as labelled inline badges
             const mobileChecks = cadence.users.map(user => {
                 const isMe = user.id === currentUser.id;
-                const checked = !!(state[user.id] || {})[item.title];
+                const checked = !!(state[user.email] || {})[item.title];
                 return `<span class="mobile-check${checked ? " checked" : ""}${!isMe ? " readonly" : ""}"
                     data-item="${esc(item.title)}"
-                    data-user="${esc(user.id)}"
+                    data-user="${esc(user.email)}"
                     data-me="${isMe}"
                     role="button" tabindex="0"
                     aria-label="${checked ? "Uncheck" : "Check"} ${esc(item.title)} for ${esc(user.name)}"
@@ -376,14 +381,14 @@ async function handleCheck(btn) {
         .forEach(el => {
             el.classList.toggle("checked", newChecked);
             if (el.classList.contains("check-btn")) el.textContent = newChecked ? "✓" : "";
-            if (el.classList.contains("mobile-check")) el.textContent = (newChecked ? "✓ " : "○ ") + cadence.users.find(u => u.id === userId)?.name;
+            if (el.classList.contains("mobile-check")) el.textContent = (newChecked ? "✓ " : "○ ") + cadence.users.find(u => u.email === userId)?.name;
         });
 
     updatePeriodSummaries();
     renderUserProgress();
 
     // Check for 100% completion (own items)
-    if (newChecked && userId === currentUser.id) {
+    if (newChecked && userId === currentUser.email) {
         const { checked, total } = countUserProgress(userId);
         if (checked === total) triggerCompletion();
     }
@@ -398,7 +403,7 @@ async function handleCheck(btn) {
             .forEach(el => {
                 el.classList.toggle("checked", !newChecked);
                 if (el.classList.contains("check-btn")) el.textContent = !newChecked ? "✓" : "";
-                if (el.classList.contains("mobile-check")) el.textContent = (!newChecked ? "✓ " : "○ ") + cadence.users.find(u => u.id === userId)?.name;
+                if (el.classList.contains("mobile-check")) el.textContent = (!newChecked ? "✓ " : "○ ") + cadence.users.find(u => u.email === userId)?.name;
             });
         updatePeriodSummaries();
         renderUserProgress();
@@ -413,7 +418,7 @@ function updatePeriodSummaries() {
         const summaryEl = periodEl.querySelector(".period-user-summary");
         if (!summaryEl) return;
         summaryEl.innerHTML = cadence.users.map(user => {
-            const userChecks = state[user.id] || {};
+            const userChecks = state[user.email] || {};
             const done = period.items.filter(i => userChecks[i.title]).length;
             const total = period.items.length;
             const allDone = done === total && total > 0;

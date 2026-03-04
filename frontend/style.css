@@ -185,13 +185,21 @@ main {
 
 /* ── User cards ───────────────────────────────────────────── */
 
+#user-progress-cards {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
 .user-card {
     background: var(--bg-card);
     border: 1px solid var(--border);
     border-radius: var(--radius);
     padding: 18px 22px;
     box-shadow: var(--shadow);
-    flex: 1;
+    flex: 1 1 0;
     min-width: 180px;
 }
 .user-card.is-me {
@@ -227,6 +235,8 @@ main {
     padding: 2px 7px;
     border-radius: 4px;
     margin-left: auto;
+    min-width: 100px;
+    text-align: center;
 }
 .pace-good { background: var(--green-bg); color: var(--green); }
 .pace-warn { background: var(--yellow-bg); color: var(--yellow); }
