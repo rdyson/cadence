@@ -24,7 +24,7 @@ Runs on AWS free tier.
 - **Persistent state** — stored in DynamoDB, survives page refreshes
 - **Auth** — AWS Cognito email/password login
 - **Static frontend** — no server, just S3 + CloudFront
-- **Themes** — clean default theme or dark sci-fi LCARS theme
+- **Themes** — clean default or dark sci-fi LCARS theme, with a ☀️/🌙 toggle per user
 - **Local dev mode** — iterate on the UI without deploying
 - **Validate script** — verify all AWS resources are healthy
 
@@ -210,7 +210,7 @@ See [`cadence.example.yaml`](cadence.example.yaml) for a fully annotated example
 | `columns.period`           | ✅       | CSV column name for period numbers                       |
 | `columns.hours`            | —       | CSV column name for time estimates (omit to hide hours)  |
 | `users`                    | ✅       | List of `{ id, name, email }`                            |
-| `theme`                    | —       | `default` or `lcars` (dark sci-fi theme)                 |
+| `theme`                    | ❌       | Default theme for new visitors: `default` or `lcars`. Users can toggle freely; their choice is saved in localStorage. |
 | `period_labels`            | —       | Override period headings (e.g. `1: "Week 1 — March 2"`)  |
 | `aws.region`               | ✅       | AWS region                                               |
 | `aws.dynamodb_table`       | ✅       | DynamoDB table name (set by setup script)                |

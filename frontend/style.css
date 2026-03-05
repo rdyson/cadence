@@ -175,6 +175,15 @@
     border-color: var(--lcars-pink);
     color: var(--lcars-pink);
 }
+:root[data-theme="lcars"] #theme-toggle-btn,
+:root[data-theme="lcars"] .theme-toggle-floating {
+    border-color: var(--border);
+    border-radius: 0;
+}
+:root[data-theme="lcars"] #theme-toggle-btn:hover,
+:root[data-theme="lcars"] .theme-toggle-floating:hover {
+    border-color: var(--lcars-amber);
+}
 
 /* ── LCARS Stats ── */
 
@@ -601,6 +610,7 @@ body {
 }
 
 .login-card {
+    position: relative;
     background: var(--bg-card);
     border: 1px solid var(--border);
     border-radius: 16px;
@@ -688,6 +698,33 @@ header h1 { font-size: 18px; font-weight: 700; }
     white-space: nowrap;
 }
 #sign-out-btn:hover { border-color: var(--text-muted); color: var(--text); }
+
+#theme-toggle-btn {
+    background: none;
+    border: 1px solid var(--border);
+    padding: 4px 8px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    line-height: 1;
+    transition: all 0.15s;
+}
+#theme-toggle-btn:hover { border-color: var(--text-muted); }
+
+.theme-toggle-floating {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    background: none;
+    border: 1px solid var(--border);
+    padding: 4px 8px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    line-height: 1;
+    transition: all 0.15s;
+}
+.theme-toggle-floating:hover { border-color: var(--text-muted); }
 
 #app-footer {
     text-align: center;

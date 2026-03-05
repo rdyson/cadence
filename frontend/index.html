@@ -9,12 +9,20 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Orbitron:wght@400;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
+    <script>
+    // Apply saved theme before paint to avoid flash
+    (function() {
+        var t = localStorage.getItem("cadence_theme");
+        if (t) document.documentElement.setAttribute("data-theme", t);
+    })();
+    </script>
 </head>
 <body>
 
 <!-- Login screen -->
 <div id="login-screen" class="hidden">
     <div class="login-card">
+        <button id="login-theme-toggle" class="theme-toggle-floating" aria-label="Toggle theme" title="Toggle theme"></button>
         <div class="login-logo">🪿</div>
         <h1 id="login-title">Cadence</h1>
         <p id="login-desc">Keep the pace.</p>
@@ -44,6 +52,7 @@
         </div>
         <div class="header-right">
             <span id="signed-in-as"></span>
+            <button id="theme-toggle-btn" aria-label="Toggle theme" title="Toggle theme"></button>
             <button id="sign-out-btn">Sign out</button>
         </div>
     </header>

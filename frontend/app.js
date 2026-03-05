@@ -10,6 +10,40 @@ let state = {};           // { userId: { itemTitle: true/false } }
 let currentUser = null;   // { id, name, email }
 let accessToken = null;
 
+// ── Theme toggle ─────────────────────────────────────────────────────────────
+
+function getCurrentTheme() {
+    return document.documentElement.getAttribute("data-theme") || "default";
+}
+
+function setTheme(theme) {
+    if (theme === "default") {
+        document.documentElement.removeAttribute("data-theme");
+    } else {
+        document.documentElement.setAttribute("data-theme", theme);
+    }
+    localStorage.setItem("cadence_theme", theme);
+    updateThemeIcons();
+}
+
+function toggleTheme() {
+    setTheme(getCurrentTheme() === "lcars" ? "default" : "lcars");
+}
+
+function updateThemeIcons() {
+    const isLcars = getCurrentTheme() === "lcars";
+    const icon = isLcars ? "☀️" : "🌙";
+    document.querySelectorAll("#theme-toggle-btn, #login-theme-toggle")
+        .forEach(btn => { btn.textContent = icon; });
+}
+
+// Bind all theme toggle buttons
+document.addEventListener("DOMContentLoaded", () => {
+    document.querySelectorAll("#theme-toggle-btn, #login-theme-toggle")
+        .forEach(btn => btn.addEventListener("click", toggleTheme));
+    updateThemeIcons();
+});
+
 // ── Cognito Auth ─────────────────────────────────────────────────────────────
 
 function cognitoEndpoint() {
@@ -573,10 +607,15 @@ async function init() {
         return;
     }
 
-    // Apply theme
-    if (cadence.theme && cadence.theme !== "default") {
-        document.documentElement.setAttribute("data-theme", cadence.theme);
+    // Apply theme: localStorage overrides config default
+    const savedTheme = localStorage.getItem("cadence_theme");
+    const theme = savedTheme || cadence.theme || "default";
+    if (theme !== "default") {
+        document.documentElement.setAttribute("data-theme", theme);
+    } else {
+        document.documentElement.removeAttribute("data-theme");
     }
+    updateThemeIcons();
 
     document.getElementById("login-title").textContent = "Cadence";
     document.getElementById("login-desc").textContent = cadence.name;
