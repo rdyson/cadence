@@ -59,16 +59,13 @@ period_labels:
 
 # Optional: passwordless email OTP login
 # Set to true and configure ses_sender_email to enable "Send me a code" on the login page.
-# Requires running: bash scripts/setup-otp.sh (after setup-aws.sh)
+# setup.py handles all OTP infrastructure automatically when otp is true.
 # otp: true
 # ses_sender_email: noreply@yourdomain.com
 
-# AWS settings (filled in during setup)
+# AWS settings
+# Only region and dynamodb_table need to be set manually.
+# All other values are written automatically by: python3 scripts/setup.py
 aws:
   region: eu-west-2
-  dynamodb_table: cadence-study
-  cognito_user_pool_id: ""       # e.g. eu-west-2_XXXXXXXXX
-  cognito_client_id: ""          # e.g. 1abc2defghij3klmnopqrstuvwx
-  api_url: ""                    # e.g. https://abc123.execute-api.eu-west-2.amazonaws.com
-  cloudfront_url: ""             # e.g. https://d1234abcd.cloudfront.net
-  s3_bucket: ""                  # e.g. cadence-my-project
+  dynamodb_table: cadence

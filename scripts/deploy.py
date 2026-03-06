@@ -40,8 +40,9 @@ def deploy(config_path: str = "cadence.yaml", skip_build: bool = False, skip_lam
     aws = config.get("aws", {})
     region = aws.get("region", "eu-west-2")
     bucket = aws.get("s3_bucket", "")
-    lambda_name = "cadence-api"
-    table_name = aws.get("dynamodb_table", "cadence-study")
+    project_name = config.get("name", "Cadence").lower().replace(" ", "-")
+    lambda_name = f"{project_name}-api"
+    table_name = aws.get("dynamodb_table", "cadence")
     cf_url = aws.get("cloudfront_url", "")
 
     if not bucket:
@@ -123,7 +124,7 @@ def deploy(config_path: str = "cadence.yaml", skip_build: bool = False, skip_lam
         # Update auth triggers Lambda if it exists
         auth_triggers = Path("backend/auth_triggers.py")
         if auth_triggers.exists():
-            trigger_name = "cadence-auth-triggers"
+            trigger_name = f"{project_name}-auth-triggers"
             # Check if the Lambda exists before trying to update
             check = subprocess.run(
                 ["aws", "lambda", "get-function", "--function-name", trigger_name, "--region", region],
@@ -161,19 +162,24 @@ def deploy(config_path: str = "cadence.yaml", skip_build: bool = False, skip_lam
     # Step 4: Invalidate CloudFront (if configured)
     if cf_url:
         print("▶ Invalidating CloudFront cache...")
-        cf_hostname = cf_url.replace("https://", "").replace("http://", "").strip("/")
-        try:
-            # Find distribution ID by alias
-            result = run([
-                "aws", "cloudfront", "list-distributions",
-                "--query", f"DistributionList.Items[?Aliases.Items[?contains(@, '{cf_hostname}')]].Id | [0]",
-                "--output", "text",
-                "--region", "us-east-1",
-            ], capture=True)
-            dist_id = result.stdout.strip()
+        dist_id = aws.get("cloudfront_distribution_id", "")
 
-            if dist_id and dist_id != "None":
-                caller_ref = str(hash(str(Path.cwd())))
+        if not dist_id:
+            # Fallback: look up by alias or origin
+            cf_hostname = cf_url.replace("https://", "").replace("http://", "").strip("/")
+            try:
+                result = run([
+                    "aws", "cloudfront", "list-distributions",
+                    "--query", f"DistributionList.Items[?Aliases.Items[?contains(@, '{cf_hostname}')]].Id | [0]",
+                    "--output", "text",
+                    "--region", "us-east-1",
+                ], capture=True)
+                dist_id = result.stdout.strip()
+            except Exception:
+                pass
+
+        if dist_id and dist_id != "None":
+            try:
                 run([
                     "aws", "cloudfront", "create-invalidation",
                     "--distribution-id", dist_id,
@@ -181,10 +187,10 @@ def deploy(config_path: str = "cadence.yaml", skip_build: bool = False, skip_lam
                     "--region", "us-east-1",
                 ], capture=True)
                 print("  ✓ CloudFront invalidation created\n")
-            else:
-                print("  ⚠ CloudFront distribution not found — skipping invalidation\n")
-        except Exception as e:
-            print(f"  ⚠ CloudFront invalidation failed: {e}\n")
+            except Exception as e:
+                print(f"  ⚠ CloudFront invalidation failed: {e}\n")
+        else:
+            print("  ⚠ CloudFront distribution not found — skipping invalidation\n")
 
     print("================================")
     print("  ✅ Deploy complete!")

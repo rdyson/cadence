@@ -144,17 +144,19 @@ Open `items.csv` (or replace it with your own). The build script reads the colum
 ### 3. Deploy
 
 ```bash
-bash scripts/setup.sh
+python3 scripts/setup.py
+python3 scripts/deploy.py
 ```
 
-This runs the full setup in one go (~10 minutes):
+`setup.py` deploys all AWS infrastructure via a single CloudFormation stack (~10 minutes on first run):
 
-1. **Preflight checks** — validates AWS CLI, credentials, Python, dependencies
-2. **AWS infrastructure** — DynamoDB, Lambda, API Gateway, Cognito, S3
-3. **CloudFront** — HTTPS CDN in front of S3
-4. **Build & deploy** — builds `cadence.json` from config + CSV, uploads everything
+- DynamoDB, Lambda, API Gateway, Cognito, S3, CloudFront
+- OTP auth triggers + SES verification (if `otp: true`)
+- Creates Cognito users from `cadence.yaml`
 
-All created resource IDs are written back to `cadence.yaml` automatically. You can also run the steps individually — see [Scripts](#scripts).
+All created resource IDs are written back to `cadence.yaml` automatically.
+
+`deploy.py` builds `cadence.json` from your config + CSV, syncs the frontend to S3, updates Lambda code, and invalidates CloudFront.
 
 > **Why CloudFront?** S3 website URLs are HTTP only. Cognito requires HTTPS. CloudFront provides HTTPS and is free tier eligible.
 
@@ -215,12 +217,12 @@ See [`cadence.example.yaml`](cadence.example.yaml) for a fully annotated example
 | `ses_sender_email`         | —       | SES-verified sender address for OTP emails (required if `otp: true`) |
 | `period_labels`            | —       | Override period headings (e.g. `1: "Week 1 — March 2"`)  |
 | `aws.region`               | ✅       | AWS region                                               |
-| `aws.dynamodb_table`       | ✅       | DynamoDB table name (set by setup script)                |
-| `aws.cognito_user_pool_id` | —        | Set automatically by `setup-aws.sh`                      |
-| `aws.cognito_client_id`    | —        | Set automatically by `setup-aws.sh`                      |
-| `aws.api_url`              | —        | Set automatically by `setup-aws.sh`                      |
-| `aws.s3_bucket`            | —        | Set automatically by `setup-aws.sh`                      |
-| `aws.cloudfront_url`       | —        | Set automatically by `setup-cloudfront.sh`               |
+| `aws.dynamodb_table`       | ✅       | DynamoDB table name                                      |
+| `aws.cognito_user_pool_id` | —        | Set automatically by `setup.py`                          |
+| `aws.cognito_client_id`    | —        | Set automatically by `setup.py`                          |
+| `aws.api_url`              | —        | Set automatically by `setup.py`                          |
+| `aws.s3_bucket`            | —        | Set automatically by `setup.py`                          |
+| `aws.cloudfront_url`       | —        | Set automatically by `setup.py`                          |
 
 ---
 
@@ -259,19 +261,16 @@ DynamoDB
 
 ## Scripts
 
-| Script                        | When to run              | Description                                      |
-| ----------------------------- | ------------------------ | ------------------------------------------------ |
-| `scripts/setup.sh`            | Once (first time)        | Full setup: infrastructure + CloudFront + deploy |
-| `scripts/setup-aws.sh`        | Once (first time)        | Creates AWS infrastructure only                  |
-| `scripts/setup-cloudfront.sh` | Once (first time)        | Creates CloudFront distribution only             |
-| `scripts/setup-otp.sh`       | Once (optional)          | Enables passwordless email OTP login             |
-| `scripts/deploy.py`           | After any changes        | Build + upload to S3 + update Lambda             |
-| `scripts/build.py`            | After editing CSV/config | Builds `frontend/cadence.json`                   |
-| `scripts/validate.py`         | Anytime                  | Checks all AWS resources are healthy             |
-| `scripts/dev.py`              | During development       | Local dev server with mock API (no AWS needed)   |
-| `scripts/teardown-aws.sh`     | To remove everything     | Deletes all AWS resources                        |
+| Script                    | When to run              | Description                                              |
+| ------------------------- | ------------------------ | -------------------------------------------------------- |
+| `scripts/setup.py`        | Once (first time)        | Deploy all AWS infrastructure via CloudFormation         |
+| `scripts/deploy.py`       | After any changes        | Build + upload to S3 + update Lambda + invalidate cache  |
+| `scripts/build.py`        | After editing CSV/config | Builds `frontend/cadence.json`                           |
+| `scripts/validate.py`     | Anytime                  | Checks all AWS resources are healthy                     |
+| `scripts/dev.py`          | During development       | Local dev server with mock API (no AWS needed)           |
+| `scripts/teardown.py`     | To remove everything     | Deletes the CloudFormation stack and all resources        |
 
-`setup.sh` is the recommended way to get started. The individual setup scripts are safe to re-run — they check for existing resources and skip them.
+`setup.py` is safe to re-run — it updates the existing stack if one exists.
 
 ---
 
@@ -288,10 +287,10 @@ otp: true
 ses_sender_email: noreply@yourdomain.com
 ```
 
-2. Run the OTP setup script (after `setup-aws.sh`):
+2. Run setup (creates or updates the stack with OTP resources):
 
 ```bash
-bash scripts/setup-otp.sh
+python3 scripts/setup.py
 ```
 
 3. Redeploy:
@@ -329,8 +328,8 @@ This is typically approved within 24 hours.
 ## Adding a new user
 
 1. Add them to `users` in `cadence.yaml`
-2. Run `bash scripts/setup-aws.sh` (skips existing resources, creates the new Cognito user)
-3. Run `python scripts/deploy.py` (rebuilds `cadence.json` with the new user column)
+2. Run `python3 scripts/setup.py` (updates the stack if needed, creates the new Cognito user)
+3. Run `python3 scripts/deploy.py` (rebuilds `cadence.json` with the new user column)
 4. Share the dashboard URL + the temporary password from the setup output
 
 ---
@@ -379,10 +378,10 @@ Useful for debugging after changes, verifying a fresh setup, or diagnosing "it w
 ## Troubleshooting
 
 **Login fails with "Incorrect username or password"**
-The user may not have been created. Check that `setup-aws.sh` completed successfully and that the email in `cadence.yaml` matches what was used to create the Cognito user.
+The user may not have been created. Check that `setup.py` completed successfully and that the email in `cadence.yaml` matches what was used to create the Cognito user.
 
 **Checkboxes don't save / API errors in console**
-Check that `aws.api_url` is set in `cadence.yaml` (written by `setup-aws.sh`). Rebuild and redeploy: `python scripts/deploy.py`.
+Check that `aws.api_url` is set in `cadence.yaml` (written by `setup.py`). Rebuild and redeploy: `python3 scripts/deploy.py`.
 
 **Dashboard shows "Error loading cadence.json"**
 Run `python scripts/build.py` to generate `frontend/cadence.json`, then redeploy.
@@ -391,21 +390,21 @@ Run `python scripts/build.py` to generate `frontend/cadence.json`, then redeploy
 `deploy.py` creates a CloudFront invalidation automatically. If content still appears stale, wait 1–2 minutes for the invalidation to propagate.
 
 **"Access Denied" from S3**
-The S3 bucket is private by design. Traffic must go through CloudFront. Check that your CloudFront distribution has an Origin Access Control (OAC) set up pointing to the bucket — `setup-cloudfront.sh` handles this automatically.
+The S3 bucket is private by design. Traffic must go through CloudFront. Check that your CloudFront distribution has an Origin Access Control (OAC) set up pointing to the bucket — `setup.py` handles this automatically via the CloudFormation template.
 
 ---
 
 ## Teardown
 
-To remove all AWS resources created by the setup scripts:
+To remove all AWS resources:
 
 ```bash
-bash scripts/teardown-aws.sh
+python3 scripts/teardown.py
 ```
 
-This deletes everything in the correct order — [CloudFront](https://console.aws.amazon.com/cloudfront/home), [S3](https://console.aws.amazon.com/s3/buckets), [Cognito](https://console.aws.amazon.com/cognito/v2/idp/user-pools), [API Gateway](https://console.aws.amazon.com/apigateway/main/apis), [Lambda](https://console.aws.amazon.com/lambda/home#/functions), [IAM role](https://console.aws.amazon.com/iam/home#/roles), and [DynamoDB](https://console.aws.amazon.com/dynamodbv2/home#tables) — and cleans up the generated values in `cadence.yaml`. You'll be prompted to type `destroy` to confirm.
+This deletes the CloudFormation stack (which removes all resources — DynamoDB, Lambda, API Gateway, Cognito, S3, CloudFront, IAM role) and cleans up the generated values in `cadence.yaml`. You'll be prompted to type `destroy` to confirm.
 
-To set up again afterwards, re-run the setup scripts as described in [Quick Start](#quick-start).
+To set up again afterwards, re-run `python3 scripts/setup.py` as described in [Quick Start](#quick-start).
 
 ---
 
