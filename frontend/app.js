@@ -33,13 +33,13 @@ function toggleTheme() {
 function updateThemeIcons() {
     const isLcars = getCurrentTheme() === "lcars";
     const icon = isLcars ? "☀️" : "🌙";
-    document.querySelectorAll("#theme-toggle-btn, #login-theme-toggle")
+    document.querySelectorAll("#theme-toggle-btn, .login-theme-toggle")
         .forEach(btn => { btn.textContent = icon; });
 }
 
 // Bind all theme toggle buttons
 document.addEventListener("DOMContentLoaded", () => {
-    document.querySelectorAll("#theme-toggle-btn, #login-theme-toggle")
+    document.querySelectorAll("#theme-toggle-btn, .login-theme-toggle")
         .forEach(btn => btn.addEventListener("click", toggleTheme));
     updateThemeIcons();
 });

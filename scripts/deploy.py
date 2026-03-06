@@ -2,19 +2,20 @@
 """
 cadence deploy script
 Builds cadence.json, syncs frontend to S3, updates Lambda, invalidates CloudFront.
+Uses AWS CLI under the hood so credentials from `aws login` work automatically.
 Usage: python scripts/deploy.py [--skip-build] [--skip-lambda]
 """
 
 from __future__ import annotations
 
 import argparse
+import json
 import subprocess
 import sys
-import warnings
+import tempfile
+import zipfile
 from pathlib import Path
 
-warnings.filterwarnings("ignore", message=".*Boto3 will no longer support.*")
-import boto3
 import yaml
 
 
@@ -23,10 +24,12 @@ def load_config(config_path: str = "cadence.yaml") -> dict:
         return yaml.safe_load(f)
 
 
-def run(cmd: list[str], **kwargs) -> subprocess.CompletedProcess:
+def run(cmd: list[str], capture: bool = False, **kwargs) -> subprocess.CompletedProcess:
     print(f"  $ {' '.join(cmd)}")
-    result = subprocess.run(cmd, **kwargs)
+    result = subprocess.run(cmd, capture_output=capture, text=capture, **kwargs)
     if result.returncode != 0:
+        if capture and result.stderr:
+            print(f"  Error: {result.stderr.strip()}")
         print(f"  Error: command failed with exit code {result.returncode}")
         sys.exit(1)
     return result
@@ -57,8 +60,6 @@ def deploy(config_path: str = "cadence.yaml", skip_build: bool = False, skip_lam
 
     # Step 2: Sync frontend to S3
     print("▶ Syncing frontend to S3...")
-    frontend_dir = Path("frontend")
-    s3 = boto3.client("s3", region_name=region)
     content_types = {
         ".html": "text/html",
         ".js": "application/javascript",
@@ -69,17 +70,17 @@ def deploy(config_path: str = "cadence.yaml", skip_build: bool = False, skip_lam
         ".svg": "image/svg+xml",
     }
 
+    frontend_dir = Path("frontend")
     uploaded = 0
     for file in frontend_dir.rglob("*"):
         if file.is_file():
             key = str(file.relative_to(frontend_dir))
             ct = content_types.get(file.suffix, "application/octet-stream")
-            s3.upload_file(
-                str(file),
-                bucket,
-                key,
-                ExtraArgs={"ContentType": ct},
-            )
+            run([
+                "aws", "s3", "cp", str(file), f"s3://{bucket}/{key}",
+                "--content-type", ct,
+                "--region", region,
+            ], capture=True)
             print(f"  ✓ {key}")
             uploaded += 1
 
@@ -88,25 +89,35 @@ def deploy(config_path: str = "cadence.yaml", skip_build: bool = False, skip_lam
     # Step 3: Update Lambda
     if not skip_lambda:
         print("▶ Updating Lambda function...")
-        import zipfile, io
-        buffer = io.BytesIO()
-        with zipfile.ZipFile(buffer, "w", zipfile.ZIP_DEFLATED) as zf:
-            zf.write("backend/lambda_function.py", "lambda_function.py")
-        buffer.seek(0)
+        with tempfile.NamedTemporaryFile(suffix=".zip", delete=False) as tmp:
+            tmp_path = tmp.name
+            with zipfile.ZipFile(tmp, "w", zipfile.ZIP_DEFLATED) as zf:
+                zf.write("backend/lambda_function.py", "lambda_function.py")
 
-        lam = boto3.client("lambda", region_name=region)
-        lam.update_function_code(
-            FunctionName=lambda_name,
-            ZipFile=buffer.read(),
-        )
-        # Wait for code update to finish before updating configuration
-        waiter = lam.get_waiter("function_updated_v2")
-        waiter.wait(FunctionName=lambda_name)
+        run([
+            "aws", "lambda", "update-function-code",
+            "--function-name", lambda_name,
+            "--zip-file", f"fileb://{tmp_path}",
+            "--region", region,
+        ], capture=True)
+
+        # Wait for code update to finish
+        run([
+            "aws", "lambda", "wait", "function-updated-v2",
+            "--function-name", lambda_name,
+            "--region", region,
+        ], capture=True)
+
         # Update env vars in case table name changed
-        lam.update_function_configuration(
-            FunctionName=lambda_name,
-            Environment={"Variables": {"DYNAMODB_TABLE": table_name}},
-        )
+        env_json = json.dumps({"Variables": {"DYNAMODB_TABLE": table_name}})
+        run([
+            "aws", "lambda", "update-function-configuration",
+            "--function-name", lambda_name,
+            "--environment", env_json,
+            "--region", region,
+        ], capture=True)
+
+        Path(tmp_path).unlink(missing_ok=True)
         print("  ✓ Lambda updated\n")
 
     # Step 4: Invalidate CloudFront (if configured)
@@ -114,23 +125,23 @@ def deploy(config_path: str = "cadence.yaml", skip_build: bool = False, skip_lam
         print("▶ Invalidating CloudFront cache...")
         cf_hostname = cf_url.replace("https://", "").replace("http://", "").strip("/")
         try:
-            cf = boto3.client("cloudfront", region_name="us-east-1")
-            # Get distribution ID from domain or alias
-            dists = cf.list_distributions()
-            dist_id = None
-            for d in dists.get("DistributionList", {}).get("Items", []):
-                aliases = d.get("Aliases", {}).get("Items", [])
-                if cf_hostname in aliases or d.get("DomainName", "") == cf_hostname:
-                    dist_id = d["Id"]
-                    break
-            if dist_id:
-                cf.create_invalidation(
-                    DistributionId=dist_id,
-                    InvalidationBatch={
-                        "Paths": {"Quantity": 1, "Items": ["/*"]},
-                        "CallerReference": str(hash(str(Path.cwd()))),
-                    },
-                )
+            # Find distribution ID by alias
+            result = run([
+                "aws", "cloudfront", "list-distributions",
+                "--query", f"DistributionList.Items[?Aliases.Items[?contains(@, '{cf_hostname}')]].Id | [0]",
+                "--output", "text",
+                "--region", "us-east-1",
+            ], capture=True)
+            dist_id = result.stdout.strip()
+
+            if dist_id and dist_id != "None":
+                caller_ref = str(hash(str(Path.cwd())))
+                run([
+                    "aws", "cloudfront", "create-invalidation",
+                    "--distribution-id", dist_id,
+                    "--paths", "/*",
+                    "--region", "us-east-1",
+                ], capture=True)
                 print("  ✓ CloudFront invalidation created\n")
             else:
                 print("  ⚠ CloudFront distribution not found — skipping invalidation\n")
