@@ -146,6 +146,7 @@ def build(config_path: str = "cadence.yaml", output_path: str = "frontend/cadenc
         "total_items": len(items),
         "total_hours": round(sum(i.get("hours") or 0 for i in items), 2),
         "aws": config.get("aws", {}),
+        "otp_enabled": bool(config.get("otp", False)),
     }
 
     # Write output

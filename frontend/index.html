@@ -29,7 +29,30 @@
             <input type="email" id="login-email" placeholder="Email" required autocomplete="email">
             <input type="password" id="login-password" placeholder="Password" required autocomplete="current-password">
             <button type="submit" id="login-btn">Sign in</button>
+            <button type="button" id="forgot-password-btn" class="link-btn">Forgot password?</button>
         </form>
+        <div id="otp-section" class="hidden">
+            <div class="login-divider"><span>or</span></div>
+            <form id="otp-form">
+                <button type="submit" id="otp-send-btn">Send me a code</button>
+            </form>
+            <form id="otp-verify-form" class="hidden">
+                <p class="otp-hint">Code sent to <span id="otp-sent-to"></span></p>
+                <input type="text" id="otp-code" placeholder="6-digit code" required autocomplete="one-time-code" inputmode="numeric" pattern="[0-9]{6}" maxlength="6">
+                <button type="submit" id="otp-verify-btn">Verify code</button>
+                <button type="button" id="otp-resend-btn" class="link-btn">Resend code</button>
+            </form>
+        </div>
+        <div id="forgot-password-section" class="hidden">
+            <div class="login-divider"><span>reset password</span></div>
+            <p class="otp-hint">Enter the code sent to <span id="reset-sent-to"></span></p>
+            <form id="reset-form">
+                <input type="text" id="reset-code" placeholder="6-digit code" required autocomplete="one-time-code" inputmode="numeric" pattern="[0-9]{6}" maxlength="6">
+                <input type="password" id="reset-new-password" placeholder="New password" required autocomplete="new-password">
+                <button type="submit" id="reset-btn">Reset password</button>
+                <button type="button" id="reset-cancel-btn" class="link-btn">Back to sign in</button>
+            </form>
+        </div>
         <button id="login-theme-toggle" class="login-theme-toggle" aria-label="Toggle theme" title="Toggle theme"></button>
         <p id="login-error" class="error hidden"></p>
         <p id="login-change-password" class="hint hidden">First sign-in: you'll need to set a new password below.</p>

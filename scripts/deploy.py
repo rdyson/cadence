@@ -120,6 +120,44 @@ def deploy(config_path: str = "cadence.yaml", skip_build: bool = False, skip_lam
         Path(tmp_path).unlink(missing_ok=True)
         print("  ✓ Lambda updated\n")
 
+        # Update auth triggers Lambda if it exists
+        auth_triggers = Path("backend/auth_triggers.py")
+        if auth_triggers.exists():
+            trigger_name = "cadence-auth-triggers"
+            # Check if the Lambda exists before trying to update
+            check = subprocess.run(
+                ["aws", "lambda", "get-function", "--function-name", trigger_name, "--region", region],
+                capture_output=True, text=True,
+            )
+            if check.returncode == 0:
+                print("▶ Updating auth triggers Lambda...")
+                with tempfile.NamedTemporaryFile(suffix=".zip", delete=False) as tmp2:
+                    tmp2_path = tmp2.name
+                    with zipfile.ZipFile(tmp2, "w", zipfile.ZIP_DEFLATED) as zf:
+                        zf.write("backend/auth_triggers.py", "auth_triggers.py")
+                ses_sender = config.get("ses_sender_email", "")
+                run([
+                    "aws", "lambda", "update-function-code",
+                    "--function-name", trigger_name,
+                    "--zip-file", f"fileb://{tmp2_path}",
+                    "--region", region,
+                ], capture=True)
+                run([
+                    "aws", "lambda", "wait", "function-updated-v2",
+                    "--function-name", trigger_name,
+                    "--region", region,
+                ], capture=True)
+                if ses_sender:
+                    env_json2 = json.dumps({"Variables": {"SES_SENDER": ses_sender}})
+                    run([
+                        "aws", "lambda", "update-function-configuration",
+                        "--function-name", trigger_name,
+                        "--environment", env_json2,
+                        "--region", region,
+                    ], capture=True)
+                Path(tmp2_path).unlink(missing_ok=True)
+                print("  ✓ Auth triggers Lambda updated\n")
+
     # Step 4: Invalidate CloudFront (if configured)
     if cf_url:
         print("▶ Invalidating CloudFront cache...")

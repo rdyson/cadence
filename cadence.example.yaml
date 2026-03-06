@@ -57,6 +57,12 @@ period_labels:
   7: "Week 7 — April 13"
   8: "Week 8 — April 20"
 
+# Optional: passwordless email OTP login
+# Set to true and configure ses_sender_email to enable "Send me a code" on the login page.
+# Requires running: bash scripts/setup-otp.sh (after setup-aws.sh)
+# otp: true
+# ses_sender_email: noreply@yourdomain.com
+
 # AWS settings (filled in during setup)
 aws:
   region: eu-west-2

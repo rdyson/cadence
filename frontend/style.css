@@ -127,6 +127,18 @@
     background: var(--accent-hover);
     box-shadow: 0 0 16px rgba(255, 153, 0, 0.3);
 }
+:root[data-theme="lcars"] .login-divider { color: var(--text-dim); }
+:root[data-theme="lcars"] .login-divider::before,
+:root[data-theme="lcars"] .login-divider::after { background: var(--border); }
+:root[data-theme="lcars"] .otp-hint { color: var(--text-muted); }
+:root[data-theme="lcars"] #otp-sent-to { color: var(--lcars-teal); }
+:root[data-theme="lcars"] #otp-code,
+:root[data-theme="lcars"] #reset-code {
+    font-family: var(--font-display);
+    color: var(--lcars-teal);
+}
+:root[data-theme="lcars"] .link-btn { color: var(--text-muted) !important; }
+:root[data-theme="lcars"] .link-btn:hover { color: var(--accent) !important; }
 
 /* ── LCARS Header ── */
 
@@ -653,6 +665,52 @@ body {
 }
 .login-card button:not(.login-theme-toggle):hover { background: var(--accent-hover); }
 .login-card button:not(.login-theme-toggle):disabled { opacity: 0.6; cursor: not-allowed; }
+
+/* OTP login */
+.login-divider {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 18px 0;
+    color: var(--text-dim);
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: .05em;
+}
+.login-divider::before, .login-divider::after {
+    content: "";
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+}
+
+.otp-hint {
+    font-size: 13px;
+    color: var(--text-muted);
+    margin-bottom: 10px;
+}
+#otp-sent-to { font-weight: 600; color: var(--text); }
+
+#otp-code, #reset-code {
+    text-align: center;
+    font-size: 20px;
+    letter-spacing: 0.3em;
+    font-weight: 600;
+}
+
+.link-btn {
+    background: none !important;
+    border: none !important;
+    color: var(--text-muted) !important;
+    font-size: 12px !important;
+    cursor: pointer;
+    text-decoration: underline;
+    padding: 4px !important;
+    margin-top: 4px;
+    width: auto !important;
+    display: inline !important;
+}
+.link-btn:hover { color: var(--accent) !important; }
 
 .error { color: var(--red); font-size: 13px; margin-top: 10px; }
 

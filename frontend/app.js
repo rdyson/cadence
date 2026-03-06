@@ -594,6 +594,22 @@ function signOut() {
     state = {};
     hide("app");
     show("login-screen");
+    // Reset OTP form state
+    const otpForm = document.getElementById("otp-form");
+    const verifyForm = document.getElementById("otp-verify-form");
+    if (verifyForm && !verifyForm.classList.contains("hidden")) {
+        verifyForm.classList.add("hidden");
+        otpForm.classList.remove("hidden");
+    }
+    const codeInput = document.getElementById("otp-code");
+    if (codeInput) codeInput.value = "";
+    // Reset forgot password form
+    const resetSection = document.getElementById("forgot-password-section");
+    if (resetSection) resetSection.classList.add("hidden");
+    const loginForm = document.getElementById("login-form");
+    if (loginForm) loginForm.classList.remove("hidden");
+    const otpSection = document.getElementById("otp-section");
+    if (otpSection && cadence.otp_enabled) otpSection.classList.remove("hidden");
 }
 
 // ── Init ──────────────────────────────────────────────────────────────────────
@@ -645,6 +661,11 @@ function setupLogin() {
     const errorEl = document.getElementById("login-error");
     const btn = document.getElementById("login-btn");
 
+    // Show OTP section if enabled in config
+    if (cadence.otp_enabled) {
+        show("otp-section");
+    }
+
     form.addEventListener("submit", async e => {
         e.preventDefault();
         errorEl.classList.add("hidden");
@@ -691,6 +712,195 @@ function setupLogin() {
             errorEl.textContent = err.message || "Failed to set password.";
             errorEl.classList.remove("hidden");
         }
+    });
+
+    // Forgot password flow
+    setupForgotPassword();
+
+    // OTP flow
+    setupOtpLogin();
+}
+
+function setupForgotPassword() {
+    const forgotBtn = document.getElementById("forgot-password-btn");
+    const resetForm = document.getElementById("reset-form");
+    const resetSection = document.getElementById("forgot-password-section");
+    const loginForm = document.getElementById("login-form");
+    const otpSection = document.getElementById("otp-section");
+    const errorEl = document.getElementById("login-error");
+
+    if (!forgotBtn) return;
+
+    forgotBtn.addEventListener("click", async () => {
+        const email = document.getElementById("login-email").value.trim();
+        if (!email) {
+            document.getElementById("login-email").focus();
+            errorEl.textContent = "Enter your email address first.";
+            errorEl.classList.remove("hidden");
+            return;
+        }
+
+        errorEl.classList.add("hidden");
+        forgotBtn.disabled = true;
+        forgotBtn.textContent = "Sending…";
+
+        try {
+            await cognitoRequest("ForgotPassword", {
+                ClientId: cadence.aws.cognito_client_id,
+                Username: email,
+            });
+            document.getElementById("reset-sent-to").textContent = email;
+            loginForm.classList.add("hidden");
+            if (otpSection) otpSection.classList.add("hidden");
+            resetSection.classList.remove("hidden");
+            document.getElementById("reset-code").focus();
+        } catch (err) {
+            errorEl.textContent = err.message || "Failed to send reset code.";
+            errorEl.classList.remove("hidden");
+        } finally {
+            forgotBtn.disabled = false;
+            forgotBtn.textContent = "Forgot password?";
+        }
+    });
+
+    resetForm.addEventListener("submit", async e => {
+        e.preventDefault();
+        const email = document.getElementById("login-email").value.trim();
+        const code = document.getElementById("reset-code").value.trim();
+        const newPassword = document.getElementById("reset-new-password").value;
+        const resetBtn = document.getElementById("reset-btn");
+        errorEl.classList.add("hidden");
+        resetBtn.disabled = true;
+        resetBtn.textContent = "Resetting…";
+
+        try {
+            await cognitoRequest("ConfirmForgotPassword", {
+                ClientId: cadence.aws.cognito_client_id,
+                Username: email,
+                ConfirmationCode: code,
+                Password: newPassword,
+            });
+            // Password reset — sign in with new password
+            const result = await signIn(email, newPassword);
+            storeTokens(result.AuthenticationResult);
+            currentUser = getUserFromToken();
+            await launchApp();
+        } catch (err) {
+            errorEl.textContent = err.message || "Password reset failed.";
+            errorEl.classList.remove("hidden");
+            resetBtn.disabled = false;
+            resetBtn.textContent = "Reset password";
+        }
+    });
+
+    document.getElementById("reset-cancel-btn").addEventListener("click", () => {
+        resetSection.classList.add("hidden");
+        loginForm.classList.remove("hidden");
+        if (otpSection && cadence.otp_enabled) otpSection.classList.remove("hidden");
+        errorEl.classList.add("hidden");
+        document.getElementById("reset-code").value = "";
+        document.getElementById("reset-new-password").value = "";
+    });
+}
+
+function setupOtpLogin() {
+    const otpForm = document.getElementById("otp-form");
+    const verifyForm = document.getElementById("otp-verify-form");
+    const errorEl = document.getElementById("login-error");
+    let otpSession = null;
+
+    if (!otpForm) return;
+
+    async function sendCode() {
+        const email = document.getElementById("login-email").value.trim();
+        if (!email) {
+            const emailInput = document.getElementById("login-email");
+            emailInput.focus();
+            errorEl.textContent = "Enter your email address first.";
+            errorEl.classList.remove("hidden");
+            return;
+        }
+
+        const sendBtn = document.getElementById("otp-send-btn");
+        errorEl.classList.add("hidden");
+        sendBtn.disabled = true;
+        sendBtn.textContent = "Sending…";
+
+        try {
+            const result = await cognitoRequest("InitiateAuth", {
+                AuthFlow: "CUSTOM_AUTH",
+                ClientId: cadence.aws.cognito_client_id,
+                AuthParameters: { USERNAME: email },
+            });
+
+            otpSession = result.Session;
+            document.getElementById("otp-sent-to").textContent = email;
+            otpForm.classList.add("hidden");
+            verifyForm.classList.remove("hidden");
+            document.getElementById("otp-code").focus();
+        } catch (err) {
+            const msg = err.__type === "UserNotFoundException"
+                ? "No account found with that email."
+                : (err.message || "Failed to send code.");
+            errorEl.textContent = msg;
+            errorEl.classList.remove("hidden");
+        } finally {
+            sendBtn.disabled = false;
+            sendBtn.textContent = "Send me a code";
+        }
+    }
+
+    otpForm.addEventListener("submit", e => {
+        e.preventDefault();
+        sendCode();
+    });
+
+    verifyForm.addEventListener("submit", async e => {
+        e.preventDefault();
+        const code = document.getElementById("otp-code").value.trim();
+        const verifyBtn = document.getElementById("otp-verify-btn");
+        errorEl.classList.add("hidden");
+        verifyBtn.disabled = true;
+        verifyBtn.textContent = "Verifying…";
+
+        try {
+            const email = document.getElementById("login-email").value.trim();
+            const result = await cognitoRequest("RespondToAuthChallenge", {
+                ChallengeName: "CUSTOM_CHALLENGE",
+                ClientId: cadence.aws.cognito_client_id,
+                ChallengeResponses: {
+                    USERNAME: email,
+                    ANSWER: code,
+                },
+                Session: otpSession,
+            });
+
+            if (result.AuthenticationResult) {
+                storeTokens(result.AuthenticationResult);
+                currentUser = getUserFromToken();
+                await launchApp();
+            } else {
+                // Another challenge round (wrong code, can retry)
+                otpSession = result.Session;
+                errorEl.textContent = "Incorrect code. Please try again.";
+                errorEl.classList.remove("hidden");
+                document.getElementById("otp-code").value = "";
+                document.getElementById("otp-code").focus();
+            }
+        } catch (err) {
+            errorEl.textContent = err.message || "Verification failed.";
+            errorEl.classList.remove("hidden");
+        } finally {
+            verifyBtn.disabled = false;
+            verifyBtn.textContent = "Verify code";
+        }
+    });
+
+    document.getElementById("otp-resend-btn").addEventListener("click", () => {
+        verifyForm.classList.add("hidden");
+        otpForm.classList.remove("hidden");
+        document.getElementById("otp-code").value = "";
+        sendCode();
     });
 }
 

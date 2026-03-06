@@ -210,7 +210,9 @@ See [`cadence.example.yaml`](cadence.example.yaml) for a fully annotated example
 | `columns.period`           | ✅       | CSV column name for period numbers                       |
 | `columns.hours`            | —       | CSV column name for time estimates (omit to hide hours)  |
 | `users`                    | ✅       | List of `{ id, name, email }`                            |
-| `theme`                    | ❌       | Default theme for new visitors: `default` or `lcars`. Users can toggle freely; their choice is saved in localStorage. |
+| `theme`                    | —       | Default theme for new visitors: `default` or `lcars`. Users can toggle freely; their choice is saved in localStorage. |
+| `otp`                      | —       | Set to `true` to enable passwordless email OTP login (see [Email OTP login](#email-otp-login)) |
+| `ses_sender_email`         | —       | SES-verified sender address for OTP emails (required if `otp: true`) |
 | `period_labels`            | —       | Override period headings (e.g. `1: "Week 1 — March 2"`)  |
 | `aws.region`               | ✅       | AWS region                                               |
 | `aws.dynamodb_table`       | ✅       | DynamoDB table name (set by setup script)                |
@@ -262,6 +264,7 @@ DynamoDB
 | `scripts/setup.sh`            | Once (first time)        | Full setup: infrastructure + CloudFront + deploy |
 | `scripts/setup-aws.sh`        | Once (first time)        | Creates AWS infrastructure only                  |
 | `scripts/setup-cloudfront.sh` | Once (first time)        | Creates CloudFront distribution only             |
+| `scripts/setup-otp.sh`       | Once (optional)          | Enables passwordless email OTP login             |
 | `scripts/deploy.py`           | After any changes        | Build + upload to S3 + update Lambda             |
 | `scripts/build.py`            | After editing CSV/config | Builds `frontend/cadence.json`                   |
 | `scripts/validate.py`         | Anytime                  | Checks all AWS resources are healthy             |
@@ -269,6 +272,57 @@ DynamoDB
 | `scripts/teardown-aws.sh`     | To remove everything     | Deletes all AWS resources                        |
 
 `setup.sh` is the recommended way to get started. The individual setup scripts are safe to re-run — they check for existing resources and skip them.
+
+---
+
+## Email OTP login
+
+Cadence supports passwordless email login as an alternative to passwords. Users enter their email, receive a 6-digit code, and enter it to sign in. This uses Cognito's custom auth flow with SES for email delivery.
+
+### Setup
+
+1. Add to `cadence.yaml`:
+
+```yaml
+otp: true
+ses_sender_email: noreply@yourdomain.com
+```
+
+2. Run the OTP setup script (after `setup-aws.sh`):
+
+```bash
+bash scripts/setup-otp.sh
+```
+
+3. Redeploy:
+
+```bash
+python3 scripts/deploy.py
+```
+
+### SES sandbox vs production
+
+New AWS accounts start in **SES sandbox mode**, which restricts who you can send email to:
+
+| Mode | Sender | Recipients | Daily limit |
+| --- | --- | --- | --- |
+| **Sandbox** | Must be verified | Must each be verified | 200 emails/day |
+| **Production** | Must be verified | Anyone | 50,000+/day |
+
+**For sandbox mode** (small teams, testing): `setup-otp.sh` automatically sends SES verification emails to the sender and all users in `cadence.yaml`. Each person must click the verification link in their inbox before OTP will work for them.
+
+**For production mode** (larger teams, no recipient verification): request production access in the SES console or via CLI:
+
+```bash
+aws sesv2 put-account-details \
+  --production-access-enabled \
+  --mail-type TRANSACTIONAL \
+  --use-case-description "Sending one-time login codes for a private app" \
+  --website-url "https://your-cadence-url" \
+  --region your-region
+```
+
+This is typically approved within 24 hours.
 
 ---
 
