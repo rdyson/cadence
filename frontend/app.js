@@ -911,6 +911,7 @@ async function launchApp() {
     renderCountdown();
     renderUserProgress();
     renderPeriods();
+    updatePeriodSummaries();
     document.getElementById("sign-out-btn").addEventListener("click", signOut);
     show("app");
     show("app-footer");
