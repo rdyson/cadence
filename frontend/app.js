@@ -85,19 +85,19 @@ async function respondToNewPasswordChallenge(session, email, newPassword) {
 function storeTokens(authResult) {
     accessToken = authResult.AccessToken;
     const expiry = Date.now() + (authResult.ExpiresIn * 1000);
-    sessionStorage.setItem("cadence_access_token", accessToken);
-    sessionStorage.setItem("cadence_token_expiry", expiry);
+    localStorage.setItem("cadence_access_token", accessToken);
+    localStorage.setItem("cadence_token_expiry", expiry);
     if (authResult.IdToken) {
-        sessionStorage.setItem("cadence_id_token", authResult.IdToken);
+        localStorage.setItem("cadence_id_token", authResult.IdToken);
     }
     if (authResult.RefreshToken) {
-        sessionStorage.setItem("cadence_refresh_token", authResult.RefreshToken);
+        localStorage.setItem("cadence_refresh_token", authResult.RefreshToken);
     }
 }
 
 function loadStoredToken() {
-    const token = sessionStorage.getItem("cadence_access_token");
-    const expiry = parseInt(sessionStorage.getItem("cadence_token_expiry") || "0");
+    const token = localStorage.getItem("cadence_access_token");
+    const expiry = parseInt(localStorage.getItem("cadence_token_expiry") || "0");
     if (token && Date.now() < expiry) {
         accessToken = token;
         return true;
@@ -105,18 +105,35 @@ function loadStoredToken() {
     return false;
 }
 
+async function refreshSession() {
+    const refreshToken = localStorage.getItem("cadence_refresh_token");
+    if (!refreshToken) return false;
+    try {
+        const result = await cognitoRequest("InitiateAuth", {
+            AuthFlow: "REFRESH_TOKEN_AUTH",
+            ClientId: cadence.aws.cognito_client_id,
+            AuthParameters: { REFRESH_TOKEN: refreshToken },
+        });
+        storeTokens(result.AuthenticationResult);
+        return true;
+    } catch {
+        clearTokens();
+        return false;
+    }
+}
+
 function clearTokens() {
     accessToken = null;
-    sessionStorage.removeItem("cadence_access_token");
-    sessionStorage.removeItem("cadence_id_token");
-    sessionStorage.removeItem("cadence_token_expiry");
-    sessionStorage.removeItem("cadence_refresh_token");
+    localStorage.removeItem("cadence_access_token");
+    localStorage.removeItem("cadence_id_token");
+    localStorage.removeItem("cadence_token_expiry");
+    localStorage.removeItem("cadence_refresh_token");
 }
 
 function getUserFromToken() {
     try {
         // Use ID token for identity (has email claim); access token doesn't
-        const idToken = sessionStorage.getItem("cadence_id_token");
+        const idToken = localStorage.getItem("cadence_id_token");
         const token = idToken || accessToken;
         const payload = JSON.parse(atob(token.split(".")[1]));
         const email = payload.email || payload["cognito:username"] || "";
@@ -135,19 +152,24 @@ function getUserFromToken() {
 
 function authToken() {
     // Prefer ID token (has email claim needed by Lambda)
-    return sessionStorage.getItem("cadence_id_token") || accessToken;
+    return localStorage.getItem("cadence_id_token") || accessToken;
 }
 
 async function apiGet(path) {
-    const resp = await fetch(cadence.aws.api_url + path, {
+    let resp = await fetch(cadence.aws.api_url + path, {
         headers: { Authorization: `Bearer ${authToken()}` },
     });
+    if (resp.status === 401 && await refreshSession()) {
+        resp = await fetch(cadence.aws.api_url + path, {
+            headers: { Authorization: `Bearer ${authToken()}` },
+        });
+    }
     if (resp.status === 401) { signOut(); return null; }
     return resp.json();
 }
 
 async function apiPost(path, body) {
-    const resp = await fetch(cadence.aws.api_url + path, {
+    const opts = () => ({
         method: "POST",
         headers: {
             Authorization: `Bearer ${authToken()}`,
@@ -155,6 +177,10 @@ async function apiPost(path, body) {
         },
         body: JSON.stringify(body),
     });
+    let resp = await fetch(cadence.aws.api_url + path, opts());
+    if (resp.status === 401 && await refreshSession()) {
+        resp = await fetch(cadence.aws.api_url + path, opts());
+    }
     if (resp.status === 401) { signOut(); return null; }
     return resp.json();
 }
@@ -490,8 +516,8 @@ function checkPeriodCompletion(itemTitle) {
 
     // Already celebrated this period?
     const key = `cadence_period_${currentUser.id}_${period.number}`;
-    if (sessionStorage.getItem(key)) return;
-    sessionStorage.setItem(key, "1");
+    if (localStorage.getItem(key)) return;
+    localStorage.setItem(key, "1");
 
     // Find the period element and add a flash
     const periodEl = document.querySelector(`.period[data-period="${period.number}"]`);
@@ -517,8 +543,8 @@ function checkPeriodCompletion(itemTitle) {
 
 function triggerCompletion() {
     const key = `cadence_celebrated_${currentUser.id}`;
-    if (sessionStorage.getItem(key)) return;
-    sessionStorage.setItem(key, "1");
+    if (localStorage.getItem(key)) return;
+    localStorage.setItem(key, "1");
 
     launchConfetti();
 
@@ -644,11 +670,12 @@ async function init() {
         return;
     }
 
-    if (loadStoredToken()) {
+    if (loadStoredToken() || await refreshSession()) {
         currentUser = getUserFromToken();
         if (currentUser) { await launchApp(); return; }
     }
 
+    clearTokens();
     show("login-screen");
     setupLogin();
 }
