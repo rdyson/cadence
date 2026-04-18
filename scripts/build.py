@@ -107,22 +107,30 @@ def build(config_path: str = "cadence.yaml", output_path: str = "frontend/cadenc
         p = item["period"]
         periods.setdefault(p, []).append(item)
 
-    # Build period labels + descriptions
+    # Build period labels + descriptions. Include explicitly configured periods
+    # even when they have no items so users can model skip/buffer weeks.
     configured_labels = config.get("period_labels", {}) or {}
     configured_descs = config.get("period_descriptions", {}) or {}
     interval = config.get("interval", "week").capitalize()
     period_list = []
-    for period_num in sorted(periods.keys()):
+    configured_periods = {
+        int(key) for key in [*configured_labels.keys(), *configured_descs.keys()]
+        if str(key).strip().isdigit()
+    }
+    all_periods = sorted(set(periods.keys()) | configured_periods)
+
+    for period_num in all_periods:
         label = configured_labels.get(period_num) or configured_labels.get(str(period_num))
         if not label:
             label = f"{interval} {period_num}"
         desc = configured_descs.get(period_num) or configured_descs.get(str(period_num))
+        period_items = periods.get(period_num, [])
         entry = {
             "number": period_num,
             "label": label,
-            "items": periods[period_num],
+            "items": period_items,
             "total_hours": round(
-                sum(i.get("hours") or 0 for i in periods[period_num]), 2
+                sum(i.get("hours") or 0 for i in period_items), 2
             ),
         }
         if desc:
@@ -156,7 +164,7 @@ def build(config_path: str = "cadence.yaml", output_path: str = "frontend/cadenc
         json.dump(output, f, indent=2)
 
     print(f"✅ Built cadence.json")
-    print(f"   {len(items)} items across {len(periods)} {config.get('interval', 'week')}s")
+    print(f"   {len(items)} items across {len(period_list)} {config.get('interval', 'week')}s")
     print(f"   {len(users)} user(s): {', '.join(u['name'] for u in users)}")
     print(f"   Total hours: {output['total_hours']}")
     print(f"   Output: {out_path}")

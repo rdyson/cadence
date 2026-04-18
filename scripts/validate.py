@@ -19,7 +19,7 @@ try:
     import warnings
     warnings.filterwarnings("ignore", message=".*Boto3 will no longer support.*")
     import boto3
-    from botocore.exceptions import ClientError
+    from botocore.exceptions import ClientError, NoCredentialsError
 except ImportError:
     print("Error: boto3 is required. Run: pip install boto3")
     sys.exit(1)
@@ -30,6 +30,9 @@ class Validator:
         self.config = config
         self.aws = config.get("aws", {})
         self.region = self.aws.get("region", "eu-west-2")
+        self.project_name = self.config.get("name", "Cadence").lower().replace(" ", "-")
+        self.api_name = f"{self.project_name}-api"
+        self.role_name = f"{self.project_name}-lambda-role"
         self.passed = 0
         self.failed = 0
         self.warnings = 0
@@ -136,15 +139,15 @@ class Validator:
         print("\n▶ Lambda")
         try:
             lam = boto3.client("lambda", region_name=self.region)
-            fn = lam.get_function(FunctionName="cadence-api")
+            fn = lam.get_function(FunctionName=self.api_name)
             config = fn["Configuration"]
             runtime = config["Runtime"]
             state = config["State"]
             table_env = config.get("Environment", {}).get("Variables", {}).get("DYNAMODB_TABLE", "")
             if state == "Active":
-                self.ok(f"cadence-api", f"runtime={runtime}, state={state}")
+                self.ok(self.api_name, f"runtime={runtime}, state={state}")
             else:
-                self.warn(f"cadence-api", f"state={state}")
+                self.warn(self.api_name, f"state={state}")
 
             expected_table = self.aws.get("dynamodb_table", "")
             if table_env == expected_table:
@@ -152,7 +155,7 @@ class Validator:
             else:
                 self.fail("DYNAMODB_TABLE env var", f"expected '{expected_table}', got '{table_env}'")
         except ClientError as e:
-            self.fail("cadence-api", e.response["Error"]["Message"])
+            self.fail(self.api_name, e.response["Error"]["Message"])
 
     def check_api_gateway(self):
         print("\n▶ API Gateway")
@@ -166,19 +169,19 @@ class Validator:
             apis = apigw.get_apis()
             found = None
             for api in apis.get("Items", []):
-                if api["Name"] == "cadence-api":
+                if api["Name"] == self.api_name:
                     found = api
                     break
 
             if found:
-                self.ok(f"cadence-api", f"id={found['ApiId']}, protocol={found['ProtocolType']}")
+                self.ok(self.api_name, f"id={found['ApiId']}, protocol={found['ProtocolType']}")
                 expected_url = f"https://{found['ApiId']}.execute-api.{self.region}.amazonaws.com"
                 if api_url == expected_url:
                     self.ok("api_url matches", api_url)
                 else:
                     self.warn("api_url mismatch", f"config={api_url}, actual={expected_url}")
             else:
-                self.fail("cadence-api", "API not found")
+                self.fail(self.api_name, "API not found")
         except ClientError as e:
             self.fail("API Gateway", e.response["Error"]["Message"])
 
@@ -240,14 +243,14 @@ class Validator:
         print("\n▶ IAM")
         try:
             iam = boto3.client("iam")
-            role = iam.get_role(RoleName="cadence-lambda-role")
-            self.ok("cadence-lambda-role", "exists")
+            iam.get_role(RoleName=self.role_name)
+            self.ok(self.role_name, "exists")
 
-            policies = iam.list_attached_role_policies(RoleName="cadence-lambda-role")
+            policies = iam.list_attached_role_policies(RoleName=self.role_name)
             for p in policies["AttachedPolicies"]:
                 self.ok(f"  policy: {p['PolicyName']}")
         except ClientError as e:
-            self.fail("cadence-lambda-role", e.response["Error"]["Message"])
+            self.fail(self.role_name, e.response["Error"]["Message"])
 
     def run(self):
         print("================================")
@@ -255,14 +258,26 @@ class Validator:
         print(f"  Region: {self.region}")
         print("================================")
 
-        self.check_config()
-        self.check_dynamodb()
-        self.check_cognito()
-        self.check_lambda()
-        self.check_api_gateway()
-        self.check_s3()
-        self.check_cloudfront()
-        self.check_iam()
+        try:
+            self.check_config()
+            self.check_dynamodb()
+            self.check_cognito()
+            self.check_lambda()
+            self.check_api_gateway()
+            self.check_s3()
+            self.check_cloudfront()
+            self.check_iam()
+        except NoCredentialsError:
+            self.fail("AWS credentials", "boto3 could not find credentials for this shell")
+            print('  Hint: if `aws` CLI works, try:')
+            print('    eval "$(aws configure export-credentials --format env)" && python3 scripts/validate.py')
+            print("\n================================")
+            print(f"  ✓ {self.passed} passed")
+            print(f"  ✗ {self.failed} failed")
+            if self.warnings:
+                print(f"  ⚠ {self.warnings} warnings")
+            print("================================")
+            return 1
 
         print("\n================================")
         print(f"  ✓ {self.passed} passed")
