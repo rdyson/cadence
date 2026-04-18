@@ -141,6 +141,8 @@ Open `cadence.yaml` and set:
 
 Open `items.csv` (or replace it with your own). The build script reads the column names from `cadence.yaml → columns`, so your CSV just needs a consistent header row.
 
+If you need a break in the schedule, you can define a visible empty period in `cadence.yaml` and simply leave that period unused in the CSV. This is useful for skip weeks, buffer weeks, holidays, or catch-up periods.
+
 ### 3. Deploy
 
 ```bash
@@ -196,6 +198,30 @@ Column names must match the `columns` settings in `cadence.yaml`. Defaults are `
 
 This means you can use a spreadsheet with section headers and totals — Cadence will ignore them cleanly.
 
+### Skip weeks / empty periods
+
+Cadence can show a period even when it has no items, as long as that period is explicitly configured in `cadence.yaml`.
+
+Example:
+
+```yaml
+completion_date: "2026-05-10"
+
+period_labels:
+  4: "Week 4 (March 23)"
+  5: "Week 5 (March 30) Skip"
+  6: "Week 6 (April 6) Skip"
+  7: "Week 7 (April 13)"
+
+period_descriptions:
+  5: "Skip week"
+  6: "Skip week"
+```
+
+Then keep your real items in later numbered periods in `items.csv` (for example, move old week 5 items to period `7`).
+
+This preserves existing checkbox data as long as the item titles themselves stay the same.
+
 ---
 
 ## Config reference
@@ -205,7 +231,7 @@ See [`cadence.example.yaml`](cadence.example.yaml) for a fully annotated example
 | Field                      | Required | Description                                              |
 | -------------------------- | -------- | -------------------------------------------------------- |
 | `name`                     | ✅       | Project display name                                     |
-| `completion_date`          | ✅       | Target end date (`YYYY-MM-DD`)                           |
+| `completion_date`          | ✅       | Target end date (`YYYY-MM-DD`). Move this out if you add skip/buffer periods and want the countdown to match. |
 | `interval`                 | ✅       | `week` / `month` / `day` / `year` / `sprint` / `quarter` |
 | `csv`                      | ✅       | Path to your CSV (relative to `cadence.yaml`)            |
 | `columns.title`            | ✅       | CSV column name for item titles                          |
@@ -215,7 +241,8 @@ See [`cadence.example.yaml`](cadence.example.yaml) for a fully annotated example
 | `theme`                    | —       | Default theme for new visitors: `default` or `lcars`. Users can toggle freely; their choice is saved in localStorage. |
 | `otp`                      | —       | Set to `true` to enable passwordless email OTP login (see [Email OTP login](#email-otp-login)) |
 | `ses_sender_email`         | —       | SES-verified sender address for OTP emails (required if `otp: true`) |
-| `period_labels`            | —       | Override period headings (e.g. `1: "Week 1 — March 2"`)  |
+| `period_labels`            | —       | Override period headings (e.g. `1: "Week 1 — March 2"`). Explicitly configured empty periods are still rendered, which enables skip weeks. |
+| `period_descriptions`      | —       | Optional per-period subtitle text (e.g. `5: "Skip week"`) |
 | `aws.region`               | ✅       | AWS region                                               |
 | `aws.dynamodb_table`       | ✅       | DynamoDB table name                                      |
 | `aws.cognito_user_pool_id` | —        | Set automatically by `setup.py`                          |
